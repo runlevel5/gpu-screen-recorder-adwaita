@@ -17,7 +17,7 @@ on_about_action(GSimpleAction *action,
     AdwAboutDialog *about = ADW_ABOUT_DIALOG(adw_about_dialog_new());
     adw_about_dialog_set_application_name(about, "GPU Screen Recorder");
     adw_about_dialog_set_version(about, GSR_VERSION);
-    adw_about_dialog_set_developer_name(about, "Trung Lê");
+    adw_about_dialog_set_developer_name(about, "dec05eba");
     adw_about_dialog_set_application_icon(about,
         "com.dec05eba.gpu_screen_recorder");
     adw_about_dialog_set_license_type(about, GTK_LICENSE_GPL_3_0);
@@ -26,11 +26,11 @@ on_about_action(GSimpleAction *action,
     adw_about_dialog_set_issue_url(about,
         "https://github.com/runlevel5/gpu-screen-recorder-adwaita/issues");
 
-    const char *developers[] = { "Trung Lê", NULL };
+    const char *developers[] = { "dec05eba", NULL };
     adw_about_dialog_set_developers(about, developers);
 
-    adw_about_dialog_add_credit_section(about, "Original GTK3 Version",
-        (const char *[]){ "dec05eba", NULL });
+    adw_about_dialog_add_credit_section(about, "Adwaita Port",
+        (const char *[]){ "Trung Lê", NULL });
 
     adw_dialog_present(ADW_DIALOG(about), GTK_WIDGET(win));
 }

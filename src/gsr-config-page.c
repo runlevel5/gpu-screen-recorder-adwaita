@@ -200,21 +200,22 @@ build_capture_group(GsrConfigPage *self)
 
     const GsrInfo *info = self->info;
 
-    /* "Window" */
-    if (info->system_info.display_server == GSR_DISPLAY_SERVER_WAYLAND)
-        gtk_string_list_append(self->record_area_model, "Window (Wayland N/A)");
-    else
+#ifdef HAVE_X11
+    /* "Window" — X11 only */
+    if (info->system_info.display_server == GSR_DISPLAY_SERVER_X11) {
         gtk_string_list_append(self->record_area_model, "Window");
-    ids_array_append(&self->record_area_ids, &self->n_record_area_ids, &cap, "window");
+        ids_array_append(&self->record_area_ids, &self->n_record_area_ids, &cap, "window");
+    }
 
-    /* "Follow focused window" */
-    if (info->system_info.display_server == GSR_DISPLAY_SERVER_WAYLAND)
-        gtk_string_list_append(self->record_area_model, "Focused window (Wayland N/A)");
-    else
+    /* "Follow focused window" — X11 only */
+    if (info->system_info.display_server == GSR_DISPLAY_SERVER_X11) {
         gtk_string_list_append(self->record_area_model, "Focused window");
-    ids_array_append(&self->record_area_ids, &self->n_record_area_ids, &cap, "focused");
+        ids_array_append(&self->record_area_ids, &self->n_record_area_ids, &cap, "focused");
+    }
+#endif
 
     /* Monitors */
+    int first_monitor_idx = self->n_record_area_ids;
     for (int i = 0; i < info->supported_capture_options.n_monitors; i++) {
         const GsrMonitor *m = &info->supported_capture_options.monitors[i];
         char *label;
@@ -227,28 +228,24 @@ build_capture_group(GsrConfigPage *self)
         g_free(label);
     }
 
-    /* Desktop portal */
-    if (info->system_info.display_server == GSR_DISPLAY_SERVER_WAYLAND) {
-        if (info->supported_capture_options.portal)
-            gtk_string_list_append(self->record_area_model, "Desktop portal (no HDR)");
-        else
-            gtk_string_list_append(self->record_area_model, "Desktop portal (N/A)");
-    } else {
-        gtk_string_list_append(self->record_area_model, "Desktop portal (X11 N/A)");
+    /* Desktop portal — only on Wayland with portal support */
+    if (info->system_info.display_server == GSR_DISPLAY_SERVER_WAYLAND
+        && info->supported_capture_options.portal) {
+        gtk_string_list_append(self->record_area_model, "Desktop portal (no HDR)");
+        ids_array_append(&self->record_area_ids, &self->n_record_area_ids, &cap, "portal");
     }
-    ids_array_append(&self->record_area_ids, &self->n_record_area_ids, &cap, "portal");
 
     self->record_area_row = ADW_COMBO_ROW(adw_combo_row_new());
     adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->record_area_row), "Record area");
+
+    /* Default selection: first monitor if available, else first entry */
+    guint default_idx = (info->supported_capture_options.n_monitors > 0)
+        ? (guint)first_monitor_idx : 0;
+    adw_combo_row_set_selected(self->record_area_row, default_idx);
+
     adw_combo_row_set_model(self->record_area_row,
         G_LIST_MODEL(self->record_area_model));
-    adw_combo_row_set_use_subtitle(self->record_area_row, TRUE);
-
-    /* Default selection: first monitor if available (index 2), else window (index 0) */
-    if (info->supported_capture_options.n_monitors > 0)
-        adw_combo_row_set_selected(self->record_area_row, 2);
-    else
-        adw_combo_row_set_selected(self->record_area_row, 0);
+    adw_combo_row_set_selected(self->record_area_row, default_idx);
 
     g_signal_connect(self->record_area_row, "notify::selected",
         G_CALLBACK(on_record_area_changed), self);

@@ -526,23 +526,22 @@ handle_child_death(GsrWindow *self, int exit_status)
         /* Canceled by user — silent */
     } else if (exit_status == 0) {
         /* Success */
-        gboolean notify = gsr_config_page_get_notify_stopped(self->config_page);
-        if (notify) {
-            if (mode == GSR_ACTIVE_MODE_RECORD && self->record_filename) {
+        if (mode == GSR_ACTIVE_MODE_RECORD && self->record_filename) {
+            if (gsr_config_page_get_notify_saved(self->config_page)) {
                 char *msg = g_strdup_printf("Recording saved to %s",
                     self->record_filename);
                 send_notification(self, "GPU Screen Recorder", msg,
                     G_NOTIFICATION_PRIORITY_NORMAL);
                 g_free(msg);
-            } else {
-                const char *mode_str =
-                    mode == GSR_ACTIVE_MODE_STREAM ? "streaming" :
-                    mode == GSR_ACTIVE_MODE_REPLAY ? "replay" : "recording";
-                char *msg = g_strdup_printf("Stopped %s", mode_str);
-                send_notification(self, "GPU Screen Recorder", msg,
-                    G_NOTIFICATION_PRIORITY_NORMAL);
-                g_free(msg);
             }
+        } else if (gsr_config_page_get_notify_stopped(self->config_page)) {
+            const char *mode_str =
+                mode == GSR_ACTIVE_MODE_STREAM ? "streaming" :
+                mode == GSR_ACTIVE_MODE_REPLAY ? "replay" : "recording";
+            char *msg = g_strdup_printf("Stopped %s", mode_str);
+            send_notification(self, "GPU Screen Recorder", msg,
+                G_NOTIFICATION_PRIORITY_NORMAL);
+            g_free(msg);
         }
     } else {
         /* Error — always notify regardless of user prefs */
@@ -1077,23 +1076,23 @@ gsr_window_stop_process(GsrWindow *self, gboolean *already_dead)
     self->active_mode = GSR_ACTIVE_MODE_NONE;
 
     /* Show stop notification (respecting user prefs) */
-    if (gsr_config_page_get_notify_stopped(self->config_page)) {
-        if (success && mode == GSR_ACTIVE_MODE_RECORD && self->record_filename) {
+    if (success && mode == GSR_ACTIVE_MODE_RECORD && self->record_filename) {
+        if (gsr_config_page_get_notify_saved(self->config_page)) {
             char *msg = g_strdup_printf("Recording saved to %s",
                 self->record_filename);
             send_notification(self, "GPU Screen Recorder", msg,
                 G_NOTIFICATION_PRIORITY_NORMAL);
             g_free(msg);
-        } else {
-            const char *mode_str =
-                mode == GSR_ACTIVE_MODE_STREAM ? "streaming" :
-                mode == GSR_ACTIVE_MODE_RECORD ? "recording" :
-                mode == GSR_ACTIVE_MODE_REPLAY ? "replay" : "unknown";
-            char *msg = g_strdup_printf("Stopped %s", mode_str);
-            send_notification(self, "GPU Screen Recorder", msg,
-                G_NOTIFICATION_PRIORITY_NORMAL);
-            g_free(msg);
         }
+    } else if (gsr_config_page_get_notify_stopped(self->config_page)) {
+        const char *mode_str =
+            mode == GSR_ACTIVE_MODE_STREAM ? "streaming" :
+            mode == GSR_ACTIVE_MODE_RECORD ? "recording" :
+            mode == GSR_ACTIVE_MODE_REPLAY ? "replay" : "unknown";
+        char *msg = g_strdup_printf("Stopped %s", mode_str);
+        send_notification(self, "GPU Screen Recorder", msg,
+            G_NOTIFICATION_PRIORITY_NORMAL);
+        g_free(msg);
     }
 
     return success;
