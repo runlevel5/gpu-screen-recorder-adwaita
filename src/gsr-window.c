@@ -46,6 +46,11 @@ struct _GsrWindow {
     GsrRecordPage      *record_page;
     GsrReplayPage      *replay_page;
 
+    /* ── Hamburger menu ─── */
+    GMenu              *primary_menu;       /* top-level menu model */
+    GMenu              *view_section;       /* "View" section (Simple/Advanced) */
+    gboolean            view_section_visible;
+
     /* ── Hotkeys ─── */
     GsrHotkeys         *hotkeys;
 #ifdef HAVE_WAYLAND
@@ -650,39 +655,53 @@ on_close_request(GtkWindow *window, gpointer user_data G_GNUC_UNUSED)
 
 /* ── Hamburger menu ──────────────────────────────────────────────── */
 
-static GMenuModel *
-create_primary_menu(void)
+static void
+create_primary_menu(GsrWindow *self)
 {
-    GMenu *menu = g_menu_new();
+    self->primary_menu = g_menu_new();
 
-    /* View mode section (with "View" header label) */
-    GMenu *view_section = g_menu_new();
+    /* View mode section (with "View" header label) — kept separate for
+       dynamic insertion/removal based on the active tab. */
+    self->view_section = g_menu_new();
     GMenuItem *simple_item = g_menu_item_new("Simple", NULL);
     g_menu_item_set_action_and_target_value(simple_item,
         "win.view-mode", g_variant_new_string("simple"));
-    g_menu_append_item(view_section, simple_item);
+    g_menu_append_item(self->view_section, simple_item);
     g_object_unref(simple_item);
 
     GMenuItem *advanced_item = g_menu_item_new("Advanced", NULL);
     g_menu_item_set_action_and_target_value(advanced_item,
         "win.view-mode", g_variant_new_string("advanced"));
-    g_menu_append_item(view_section, advanced_item);
+    g_menu_append_item(self->view_section, advanced_item);
     g_object_unref(advanced_item);
 
-    g_menu_append_section(menu, "View", G_MENU_MODEL(view_section));
-    g_object_unref(view_section);
+    /* Start with the View section hidden; it will be shown when the
+       Config tab becomes visible. */
+    self->view_section_visible = FALSE;
 
-    /* About section */
+    /* About section (always present) */
     GMenu *about_section = g_menu_new();
     g_menu_append(about_section, "Keyboard Shortcuts", "app.shortcuts");
     g_menu_append(about_section, "About", "app.about");
-    g_menu_append_section(menu, NULL, G_MENU_MODEL(about_section));
+    g_menu_append_section(self->primary_menu, NULL,
+        G_MENU_MODEL(about_section));
     g_object_unref(about_section);
-
-    return G_MENU_MODEL(menu);
 }
 
 /* ── Hotkey: page changed → regrab + register Wayland shortcuts ─── */
+
+static void
+update_view_section_visibility(GsrWindow *self, gboolean show)
+{
+    if (show && !self->view_section_visible) {
+        g_menu_insert_section(self->primary_menu, 0,
+            "View", G_MENU_MODEL(self->view_section));
+        self->view_section_visible = TRUE;
+    } else if (!show && self->view_section_visible) {
+        g_menu_remove(self->primary_menu, 0);
+        self->view_section_visible = FALSE;
+    }
+}
 
 static void
 on_visible_page_changed(GObject *object G_GNUC_UNUSED,
@@ -690,6 +709,11 @@ on_visible_page_changed(GObject *object G_GNUC_UNUSED,
                         gpointer user_data)
 {
     GsrWindow *self = GSR_WINDOW(user_data);
+
+    /* Show/hide the View section depending on the active tab */
+    const char *page = adw_view_stack_get_visible_child_name(self->view_stack);
+    gboolean on_config = page && g_str_equal(page, "config");
+    update_view_section_visibility(self, on_config);
 
     /* X11: re-grab hotkeys for the now-visible page */
 #ifdef HAVE_X11
@@ -700,7 +724,6 @@ on_visible_page_changed(GObject *object G_GNUC_UNUSED,
     /* Wayland: register shortcuts once when first visiting an action page */
 #ifdef HAVE_WAYLAND
     if (self->hotkeys && !self->wayland_shortcuts_registered) {
-        const char *page = adw_view_stack_get_visible_child_name(self->view_stack);
         if (page && (!g_str_equal(page, "config"))) {
             self->wayland_shortcuts_registered = TRUE;
             gsr_hotkeys_register_wayland_shortcuts_once(self->hotkeys);
@@ -872,7 +895,11 @@ gsr_window_init(GsrWindow *self)
     /* Hamburger menu button */
     self->menu_button = GTK_MENU_BUTTON(gtk_menu_button_new());
     gtk_menu_button_set_icon_name(self->menu_button, "open-menu-symbolic");
-    gtk_menu_button_set_menu_model(self->menu_button, create_primary_menu());
+    create_primary_menu(self);
+    gtk_menu_button_set_menu_model(self->menu_button,
+        G_MENU_MODEL(self->primary_menu));
+    /* Config is the default visible page, so show the View section */
+    update_view_section_visibility(self, TRUE);
     adw_header_bar_pack_end(self->header_bar, GTK_WIDGET(self->menu_button));
 
     /* ── Bottom view switcher bar (narrow mode fallback) ─── */
