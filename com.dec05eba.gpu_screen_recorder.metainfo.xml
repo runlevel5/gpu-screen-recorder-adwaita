@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+    <id>com.dec05eba.gpu_screen_recorder</id>
+    <name>GPU Screen Recorder</name>
+    <summary>A shadowplay-like screen recorder for Linux. The fastest screen recorder for Linux</summary>
+    <developer id="com.dec05eba.gpu_screen_recorder">
+        <name>dec05eba</name>
+    </developer>
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>GPL-3.0-or-later</project_license>
+    <url type="homepage">https://github.com/runlevel5/gpu-screen-recorder-adwaita</url>
+    <url type="bugtracker">https://github.com/runlevel5/gpu-screen-recorder-adwaita/issues</url>
+    <url type="vcs-browser">https://github.com/runlevel5/gpu-screen-recorder-adwaita</url>
+
+    <supports>
+        <control>pointing</control>
+        <control>keyboard</control>
+    </supports>
+
+    <description>
+        <p>
+            This is a screen recorder that has minimal impact on system performance by recording a monitor using the GPU only, similar to shadowplay on windows. This is the fastest screen recording tool for Linux. This screen recorder works on X11 and Wayland on AMD, Intel and NVIDIA.
+        </p>
+        <p>
+            This screen recorder can be used for recording your desktop offline, for live streaming and for nvidia-like instant replay, where only the last few minutes are saved.
+        </p>
+        <p>
+            This is the GNOME (libadwaita) frontend for GPU Screen Recorder, providing a modern Adwaita UI for screen recording, streaming, and replay (ShadowPlay-like) functionality.
+        </p>
+        <p>Supported video codecs:</p>
+        <ul>
+            <li>H264 (default)</li>
+            <li>HEVC (Optionally with HDR)</li>
+            <li>AV1 (Optionally with HDR)</li>
+            <li>VP8</li>
+            <li>VP9</li>
+        </ul>
+        <p>Supported audio codecs:</p>
+        <ul>
+            <li>Opus (default)</li>
+            <li>AAC</li>
+        </ul>
+        <p>Videos are in variable framerate format by default. Use MPV to play such videos, otherwise you might experience stuttering in the video if you are using a buggy video player. Alternatively change framerate mode to constant framerate.</p>
+        <p>For more information visit the GPU Screen Recorder homepage.</p>
+    </description>
+
+    <launchable type="desktop-id">com.dec05eba.gpu_screen_recorder.desktop</launchable>
+    <screenshots>
+        <screenshot type="default">
+            <caption>Recording page</caption>
+            <image>https://raw.githubusercontent.com/runlevel5/gpu-screen-recorder-adwaita/main/screenshot1.png</image>
+        </screenshot>
+    </screenshots>
+
+    <releases>
+        <release version="1.0.0" date="2026-02-23">
+            <description>
+                <ul>
+                    <li>Initial release of the GNOME (libadwaita) frontend</li>
+                    <li>Port from GTK3 to libadwaita (GTK4/Adwaita)</li>
+                    <li>Support for screen recording, streaming, and replay</li>
+                    <li>X11 and Wayland support with global hotkeys</li>
+                </ul>
+            </description>
+        </release>
+    </releases>
+    <content_rating type="oars-1.1"/>
+</component>

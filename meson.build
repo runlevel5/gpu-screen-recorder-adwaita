@@ -60,6 +60,10 @@ install_data(
     files('com.dec05eba.gpu_screen_recorder.desktop'),
     install_dir : join_paths(get_option('prefix'), get_option('datadir'), 'applications'),
 )
+install_data(
+    files('com.dec05eba.gpu_screen_recorder.metainfo.xml'),
+    install_dir : join_paths(get_option('prefix'), get_option('datadir'), 'metainfo'),
+)
 install_subdir('icons/hicolor', install_dir : join_paths(get_option('prefix'), get_option('datadir'), 'icons'))
 
 gnome = import('gnome')
