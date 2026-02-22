@@ -1,6 +1,6 @@
 project('gpu-screen-recorder-adwaita', 'c',
-    version : '6.0.0',
-    default_options : ['warning_level=2', 'c_std=gnu17'],
+    version : '1.0.0',
+    default_options : ['warning_level=2', 'c_std=gnu23'],
 )
 
 add_project_arguments('-Wshadow', language : 'c')
@@ -57,7 +57,7 @@ executable('gpu-screen-recorder-adw',
 )
 
 install_data(
-    files('../com.dec05eba.gpu_screen_recorder.desktop'),
+    files('com.dec05eba.gpu_screen_recorder.desktop'),
     install_dir : join_paths(get_option('prefix'), get_option('datadir'), 'applications'),
 )
 install_subdir('icons/hicolor', install_dir : join_paths(get_option('prefix'), get_option('datadir'), 'icons'))

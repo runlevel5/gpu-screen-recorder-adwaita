@@ -280,9 +280,11 @@ build_dialog_ui(GsrShortcutAccelDialog *self)
     gtk_widget_add_css_class(GTK_WIDGET(keyboard_icon), "dim-label");
     gtk_box_append(capture_box, GTK_WIDGET(keyboard_icon));
 
+    char *escaped_title = g_markup_escape_text(
+        self->shortcut_title ? self->shortcut_title : "Shortcut", -1);
     char *label_text = g_strdup_printf(
-        "Enter new shortcut for\n<b>%s</b>",
-        self->shortcut_title ? self->shortcut_title : "Shortcut");
+        "Enter new shortcut for\n<b>%s</b>", escaped_title);
+    g_free(escaped_title);
     self->capture_label = GTK_LABEL(gtk_label_new(NULL));
     gtk_label_set_markup(self->capture_label, label_text);
     gtk_label_set_justify(self->capture_label, GTK_JUSTIFY_CENTER);
@@ -309,9 +311,11 @@ build_dialog_ui(GsrShortcutAccelDialog *self)
     gtk_widget_set_margin_bottom(GTK_WIDGET(display_box), 24);
 
     GtkLabel *display_title = GTK_LABEL(gtk_label_new(NULL));
+    char *escaped_display_title = g_markup_escape_text(
+        self->shortcut_title ? self->shortcut_title : "Shortcut", -1);
     char *display_text = g_strdup_printf(
-        "Shortcut for <b>%s</b>",
-        self->shortcut_title ? self->shortcut_title : "Shortcut");
+        "Shortcut for <b>%s</b>", escaped_display_title);
+    g_free(escaped_display_title);
     gtk_label_set_markup(display_title, display_text);
     gtk_label_set_justify(display_title, GTK_JUSTIFY_CENTER);
     gtk_label_set_wrap(display_title, TRUE);

@@ -15,7 +15,7 @@ void           gsr_record_page_apply_config  (GsrRecordPage   *self,
 void           gsr_record_page_read_config   (GsrRecordPage *self,
                                               GsrConfig     *config);
 
-/* Process management API (Phase 5) */
+/* Process management API */
 void           gsr_record_page_set_active    (GsrRecordPage *self,
                                               gboolean       active);
 void           gsr_record_page_set_paused    (GsrRecordPage *self,

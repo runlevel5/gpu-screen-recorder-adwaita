@@ -413,8 +413,14 @@ build_status_group(GsrStreamPage *self)
 static void
 gsr_stream_page_finalize(GObject *object)
 {
-#ifdef HAVE_X11
     GsrStreamPage *self = GSR_STREAM_PAGE(object);
+
+    if (self->timer_source_id) {
+        g_source_remove(self->timer_source_id);
+        self->timer_source_id = 0;
+    }
+
+#ifdef HAVE_X11
     g_free(self->x11_start_stop_accel);
 #endif
     G_OBJECT_CLASS(gsr_stream_page_parent_class)->finalize(object);

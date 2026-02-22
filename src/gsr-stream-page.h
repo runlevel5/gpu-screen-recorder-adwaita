@@ -15,7 +15,7 @@ void           gsr_stream_page_apply_config  (GsrStreamPage   *self,
 void           gsr_stream_page_read_config   (GsrStreamPage *self,
                                               GsrConfig     *config);
 
-/* Process management API (Phase 5) */
+/* Process management API */
 void           gsr_stream_page_set_active    (GsrStreamPage *self,
                                               gboolean       active);
 void           gsr_stream_page_update_timer  (GsrStreamPage *self,

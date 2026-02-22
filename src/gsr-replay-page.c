@@ -490,6 +490,12 @@ static void
 gsr_replay_page_finalize(GObject *object)
 {
     GsrReplayPage *self = GSR_REPLAY_PAGE(object);
+
+    if (self->timer_source_id) {
+        g_source_remove(self->timer_source_id);
+        self->timer_source_id = 0;
+    }
+
     g_free(self->save_directory);
 #ifdef HAVE_X11
     g_free(self->x11_start_stop_accel);

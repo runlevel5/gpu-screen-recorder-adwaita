@@ -389,7 +389,7 @@ gsr_config_save(const GsrConfig *config)
 
     FILE *file = fopen(config_path, "wb");
     if (!file) {
-        g_warning("Failed to create config file: %s", config_path);
+        g_warning("Failed to create config file: %s: %s", config_path, g_strerror(errno));
         g_free(config_path);
         return;
     }

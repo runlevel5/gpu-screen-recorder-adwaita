@@ -15,7 +15,7 @@ void           gsr_replay_page_apply_config  (GsrReplayPage   *self,
 void           gsr_replay_page_read_config   (GsrReplayPage *self,
                                               GsrConfig     *config);
 
-/* Process management API (Phase 5) */
+/* Process management API */
 void           gsr_replay_page_set_active    (GsrReplayPage *self,
                                               gboolean       active);
 void           gsr_replay_page_update_timer  (GsrReplayPage *self,

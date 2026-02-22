@@ -66,6 +66,7 @@ struct _GsrWindow {
 
     /* ── Desktop notifications ─── */
     gboolean            showing_notification;
+    guint               notification_timeout_id; /* auto-withdraw timer */
     gboolean            is_kde;             /* KDE workaround */
 
     /* ── Startup error state ─── */
@@ -80,6 +81,19 @@ static void handle_child_death(GsrWindow *self, int exit_status);
 static void send_notification(GsrWindow *self, const char *title,
                               const char *body, GNotificationPriority priority);
 
+/* ── Mode-to-string helper ───────────────────────────────────────── */
+
+static const char *
+active_mode_to_string(GsrActiveMode mode)
+{
+    switch (mode) {
+    case GSR_ACTIVE_MODE_STREAM: return "streaming";
+    case GSR_ACTIVE_MODE_RECORD: return "recording";
+    case GSR_ACTIVE_MODE_REPLAY: return "replay";
+    default:                     return "unknown";
+    }
+}
+
 /* ── Desktop notification helpers ────────────────────────────────── */
 
 /**
@@ -90,6 +104,8 @@ static gboolean
 on_notification_withdraw(gpointer user_data)
 {
     GsrWindow *self = GSR_WINDOW(user_data);
+
+    self->notification_timeout_id = 0; /* source is being removed */
 
     if (self->showing_notification) {
         GtkApplication *app = GTK_APPLICATION(
@@ -146,8 +162,12 @@ send_notification(GsrWindow *self, const char *title,
     g_object_unref(notif);
 
     /* Auto-withdraw after timeout */
+    if (self->notification_timeout_id) {
+        g_source_remove(self->notification_timeout_id);
+        self->notification_timeout_id = 0;
+    }
     guint timeout_ms = (effective >= G_NOTIFICATION_PRIORITY_URGENT) ? 10000 : 3000;
-    g_timeout_add(timeout_ms, on_notification_withdraw, self);
+    self->notification_timeout_id = g_timeout_add(timeout_ms, on_notification_withdraw, self);
 
     /* ── In-app toast ── */
     AdwToast *toast = adw_toast_new(body);
@@ -211,6 +231,9 @@ build_record_filename(const char *dir, const char *container_display)
 {
     time_t now = time(NULL);
     struct tm *tm = localtime(&now);
+    if (!tm) {
+        return g_strdup_printf("%s/Video.%s", dir, container_display);
+    }
     char date_buf[64];
     strftime(date_buf, sizeof(date_buf), "%Y-%m-%d_%H-%M-%S", tm);
     return g_strdup_printf("%s/Video_%s.%s", dir, date_buf, container_display);
@@ -540,9 +563,7 @@ handle_child_death(GsrWindow *self, int exit_status)
                 g_free(msg);
             }
         } else if (gsr_config_page_get_notify_stopped(self->config_page)) {
-            const char *mode_str =
-                mode == GSR_ACTIVE_MODE_STREAM ? "streaming" :
-                mode == GSR_ACTIVE_MODE_REPLAY ? "replay" : "recording";
+            const char *mode_str = active_mode_to_string(mode);
             char *msg = g_strdup_printf("Stopped %s", mode_str);
             send_notification(self, "GPU Screen Recorder", msg,
                 G_NOTIFICATION_PRIORITY_NORMAL);
@@ -638,7 +659,11 @@ on_close_request(GtkWindow *window, gpointer user_data G_GNUC_UNUSED)
         self->hotkeys = NULL;
     }
 
-    /* Withdraw any pending desktop notification */
+    /* Withdraw any pending desktop notification and cancel its timer */
+    if (self->notification_timeout_id) {
+        g_source_remove(self->notification_timeout_id);
+        self->notification_timeout_id = 0;
+    }
     if (self->showing_notification) {
         GtkApplication *app = GTK_APPLICATION(
             gtk_window_get_application(GTK_WINDOW(self)));
@@ -982,12 +1007,19 @@ gsr_window_finalize(GObject *object)
         self->poll_timer_id = 0;
     }
 
+    if (self->notification_timeout_id) {
+        g_source_remove(self->notification_timeout_id);
+        self->notification_timeout_id = 0;
+    }
+
     if (self->hotkeys) {
         gsr_hotkeys_free(self->hotkeys);
         self->hotkeys = NULL;
     }
 
     g_free(self->record_filename);
+    g_clear_object(&self->primary_menu);
+    g_clear_object(&self->view_section);
     gsr_config_clear(&self->config);
     gsr_info_clear(&self->info);
     G_OBJECT_CLASS(gsr_window_parent_class)->finalize(object);
@@ -1046,10 +1078,7 @@ gsr_window_start_process(GsrWindow *self, GsrActiveMode mode)
     g_ptr_array_unref(args);
 
     if (!ok) {
-        const char *mode_str =
-            mode == GSR_ACTIVE_MODE_STREAM ? "streaming" :
-            mode == GSR_ACTIVE_MODE_RECORD ? "recording" :
-            mode == GSR_ACTIVE_MODE_REPLAY ? "replay" : "unknown";
+        const char *mode_str = active_mode_to_string(mode);
         char *msg = g_strdup_printf("Failed to start %s (failed to fork)", mode_str);
         send_notification(self, "GPU Screen Recorder", msg,
             G_NOTIFICATION_PRIORITY_URGENT);
@@ -1065,10 +1094,7 @@ gsr_window_start_process(GsrWindow *self, GsrActiveMode mode)
 
     /* Show "started" notification */
     if (gsr_config_page_get_notify_started(self->config_page)) {
-        const char *mode_str =
-            mode == GSR_ACTIVE_MODE_STREAM ? "streaming" :
-            mode == GSR_ACTIVE_MODE_RECORD ? "recording" :
-            mode == GSR_ACTIVE_MODE_REPLAY ? "replay" : "unknown";
+        const char *mode_str = active_mode_to_string(mode);
         char *msg = g_strdup_printf("Started %s", mode_str);
         send_notification(self, "GPU Screen Recorder", msg,
             G_NOTIFICATION_PRIORITY_NORMAL);
@@ -1112,10 +1138,7 @@ gsr_window_stop_process(GsrWindow *self, gboolean *already_dead)
             g_free(msg);
         }
     } else if (gsr_config_page_get_notify_stopped(self->config_page)) {
-        const char *mode_str =
-            mode == GSR_ACTIVE_MODE_STREAM ? "streaming" :
-            mode == GSR_ACTIVE_MODE_RECORD ? "recording" :
-            mode == GSR_ACTIVE_MODE_REPLAY ? "replay" : "unknown";
+        const char *mode_str = active_mode_to_string(mode);
         char *msg = g_strdup_printf("Stopped %s", mode_str);
         send_notification(self, "GPU Screen Recorder", msg,
             G_NOTIFICATION_PRIORITY_NORMAL);

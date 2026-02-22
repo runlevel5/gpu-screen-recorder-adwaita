@@ -32,7 +32,7 @@ read_command_output(const char *cmd, int *exit_code)
 
     int status = pclose(f);
     if (exit_code) {
-        if (WIFEXITED(status))
+        if (status >= 0 && WIFEXITED(status))
             *exit_code = WEXITSTATUS(status);
         else
             *exit_code = -1;
@@ -223,7 +223,7 @@ gsr_info_load(GsrInfo *info)
     int exit_code = -1;
     char *output = read_command_output("gpu-screen-recorder --info", &exit_code);
     if (!output) {
-        fprintf(stderr, "error: 'gpu-screen-recorder --info' failed to run\n");
+        g_warning("'gpu-screen-recorder --info' failed to run");
         return GSR_INFO_EXIT_FAILED_TO_RUN;
     }
 
