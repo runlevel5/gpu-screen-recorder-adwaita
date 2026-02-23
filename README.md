@@ -6,7 +6,16 @@ GNOME frontend for [GPU Screen Recorder](https://git.dec05eba.com/gpu-screen-rec
 ## Notes
 The program has to be launched from your application launcher or hotkeys may not work properly in your Wayland compositor (this is the case with GNOME).
 
-# Installation
+## Installation
+The only official ways to install GPU Screen Recorder is either from source.
+
+If you still prefer to install GPU Screen Recorder with a package manager instead of from source then you may be able to find a package for your distro.
+
+Here are some known packages:
+
+* Fedora, CentOS: [COPR](https://copr.fedorainfracloud.org/coprs/brycensranch/gpu-screen-recorder-git/)
+
+# Build from source
 ```sh
 meson setup build
 ninja -C build
