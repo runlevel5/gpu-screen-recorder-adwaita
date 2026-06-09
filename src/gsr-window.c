@@ -71,6 +71,7 @@ struct _GsrWindow {
 
     /* ── Startup error state ─── */
     GsrInfoExitStatus   info_status;        /* cached for deferred dialog */
+    gboolean            startup_errors_checked; /* one-shot guard for map */
 };
 
 G_DEFINE_FINAL_TYPE(GsrWindow, gsr_window, ADW_TYPE_APPLICATION_WINDOW)
@@ -784,11 +785,9 @@ show_fatal_error(GsrWindow *self, const char *heading, const char *body)
     adw_dialog_present(ADW_DIALOG(dlg), GTK_WIDGET(self));
 }
 
-static gboolean
-check_startup_errors_idle(gpointer user_data)
+static void
+check_startup_errors(GsrWindow *self)
 {
-    GsrWindow *self = GSR_WINDOW(user_data);
-
     switch (self->info_status) {
     case GSR_INFO_EXIT_FAILED_TO_RUN:
         show_fatal_error(self,
@@ -796,7 +795,7 @@ check_startup_errors_idle(gpointer user_data)
             "Failed to run the <tt>gpu-screen-recorder</tt> command.\n\n"
             "Make sure <tt>gpu-screen-recorder</tt> is installed and "
             "accessible in your PATH.");
-        return G_SOURCE_REMOVE;
+        return;
 
     case GSR_INFO_EXIT_OPENGL_FAILED:
         show_fatal_error(self,
@@ -804,7 +803,7 @@ check_startup_errors_idle(gpointer user_data)
             "Failed to get OpenGL information.\n\n"
             "Make sure your GPU drivers are properly installed. "
             "You may need to install the Vulkan or Mesa drivers for your GPU.");
-        return G_SOURCE_REMOVE;
+        return;
 
     case GSR_INFO_EXIT_NO_DRM_CARD:
         show_fatal_error(self,
@@ -812,7 +811,7 @@ check_startup_errors_idle(gpointer user_data)
             "Failed to find a valid DRM card for your GPU.\n\n"
             "If you are running in a VM, make sure GPU passthrough is "
             "enabled and properly configured.");
-        return G_SOURCE_REMOVE;
+        return;
 
     case GSR_INFO_EXIT_OK:
         break;
@@ -824,7 +823,7 @@ check_startup_errors_idle(gpointer user_data)
             "No display server detected",
             "Neither X11 nor Wayland is running.\n\n"
             "GPU Screen Recorder requires either X11 or Wayland.");
-        return G_SOURCE_REMOVE;
+        return;
     }
 
     /* Check for monitors (Wayland without portal needs monitors) */
@@ -838,10 +837,32 @@ check_startup_errors_idle(gpointer user_data)
             "Make sure GPU Screen Recorder is running on the same GPU "
             "that your monitors are connected to. You can use the "
             "<tt>DRI_PRIME</tt> environment variable to choose a GPU.");
-        return G_SOURCE_REMOVE;
+        return;
     }
+}
 
-    return G_SOURCE_REMOVE;
+/*
+ * Run the startup error check once, the first time the window is mapped.
+ *
+ * This must happen *after* the window is realized/mapped: presenting an
+ * AdwDialog needs a realized parent, and on X11 gtk_window_present()
+ * returns before the window is actually mapped (the X server maps it
+ * asynchronously). Presenting from a plain g_idle_add() therefore raced
+ * the map and tripped the
+ *   adw_dialog_present: assertion 'parent == NULL || GTK_IS_WIDGET (parent)'
+ * critical, so the error dialog never appeared. The "map" signal
+ * guarantees the parent is usable on both X11 and Wayland.
+ */
+static void
+on_window_map(GtkWidget *widget, gpointer user_data G_GNUC_UNUSED)
+{
+    GsrWindow *self = GSR_WINDOW(widget);
+
+    if (self->startup_errors_checked)
+        return;
+    self->startup_errors_checked = TRUE;
+
+    check_startup_errors(self);
 }
 
 /* ── GObject boilerplate ─────────────────────────────────────────── */
@@ -994,7 +1015,10 @@ gsr_window_init(GsrWindow *self)
 #endif
 
     /* ── Deferred startup error check ─── */
-    g_idle_add(check_startup_errors_idle, self);
+    /* Run once the window is actually mapped so the error dialog has a
+       realized parent (see on_window_map). */
+    self->startup_errors_checked = FALSE;
+    g_signal_connect(self, "map", G_CALLBACK(on_window_map), NULL);
 }
 
 static void
