@@ -69,10 +69,7 @@ G_DEFINE_FINAL_TYPE(GsrRecordPage, gsr_record_page, ADW_TYPE_PREFERENCES_PAGE)
 static char *
 get_default_videos_dir(void)
 {
-    const char *vdir = g_get_user_special_dir(G_USER_DIRECTORY_VIDEOS);
-    if (vdir)
-        return g_strdup(vdir);
-    return g_build_filename(g_get_home_dir(), "Videos", NULL);
+    return gsr_config_get_videos_dir();
 }
 
 /* ── Timer helpers ───────────────────────────────────────────────── */

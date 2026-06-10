@@ -133,8 +133,9 @@ on_notification_withdraw(gpointer user_data)
  * case so the user still sees them.
  */
 static void
-send_notification(GsrWindow *self, const char *title,
-                  const char *body, GNotificationPriority priority)
+send_notification_full(GsrWindow *self, const char *title,
+                       const char *body, GNotificationPriority priority,
+                       const char *open_file_path)
 {
     GtkApplication *app = GTK_APPLICATION(
         gtk_window_get_application(GTK_WINDOW(self)));
@@ -152,6 +153,11 @@ send_notification(GsrWindow *self, const char *title,
         effective = G_NOTIFICATION_PRIORITY_URGENT;
 
     g_notification_set_priority(notif, effective);
+
+    /* Clicking the notification reveals the saved file in the file manager */
+    if (open_file_path && *open_file_path)
+        g_notification_set_default_action_and_target(notif,
+            "app.open-folder", "s", open_file_path);
 
     /* Cancel any pending withdrawal timer, then send */
     if (self->showing_notification) {
@@ -171,7 +177,20 @@ send_notification(GsrWindow *self, const char *title,
     /* ── In-app toast ── */
     AdwToast *toast = adw_toast_new(body);
     adw_toast_set_timeout(toast, (effective >= G_NOTIFICATION_PRIORITY_URGENT) ? 10 : 3);
+    if (open_file_path && *open_file_path) {
+        adw_toast_set_button_label(toast, "Open Folder");
+        adw_toast_set_action_name(toast, "app.open-folder");
+        adw_toast_set_action_target_value(toast,
+            g_variant_new_string(open_file_path));
+    }
     adw_toast_overlay_add_toast(self->toast_overlay, toast);
+}
+
+static void
+send_notification(GsrWindow *self, const char *title,
+                  const char *body, GNotificationPriority priority)
+{
+    send_notification_full(self, title, body, priority, NULL);
 }
 
 /* ── Container compatibility fix ─────────────────────────────────── */
@@ -553,8 +572,8 @@ handle_child_death(GsrWindow *self, int exit_status)
             if (gsr_config_page_get_notify_saved(self->config_page)) {
                 char *msg = g_strdup_printf("Recording saved to %s",
                     self->record_filename);
-                send_notification(self, "GPU Screen Recorder", msg,
-                    G_NOTIFICATION_PRIORITY_NORMAL);
+                send_notification_full(self, "GPU Screen Recorder", msg,
+                    G_NOTIFICATION_PRIORITY_NORMAL, self->record_filename);
                 g_free(msg);
             }
         } else if (gsr_config_page_get_notify_stopped(self->config_page)) {
@@ -1114,8 +1133,8 @@ gsr_window_stop_process(GsrWindow *self, gboolean *already_dead)
         if (gsr_config_page_get_notify_saved(self->config_page)) {
             char *msg = g_strdup_printf("Recording saved to %s",
                 self->record_filename);
-            send_notification(self, "GPU Screen Recorder", msg,
-                G_NOTIFICATION_PRIORITY_NORMAL);
+            send_notification_full(self, "GPU Screen Recorder", msg,
+                G_NOTIFICATION_PRIORITY_NORMAL, self->record_filename);
             g_free(msg);
         }
     } else if (gsr_config_page_get_notify_stopped(self->config_page)) {

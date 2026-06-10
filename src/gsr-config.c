@@ -68,9 +68,10 @@ gsr_config_get_dir(void)
 char *
 gsr_config_get_videos_dir(void)
 {
-    const char *vdir = g_get_user_special_dir(G_USER_DIRECTORY_VIDEOS);
-    if (vdir)
-        return g_strdup(vdir);
+    /* Prefer the standard XDG videos directory, fall back to ~/Videos. */
+    const char *xdg_videos = g_getenv("XDG_VIDEOS_DIR");
+    if (xdg_videos && *xdg_videos)
+        return g_strdup(xdg_videos);
     char *home = get_home_dir();
     char *result = g_build_filename(home, "Videos", NULL);
     g_free(home);
