@@ -1,6 +1,7 @@
 #include "gsr-shortcut-accel-dialog.h"
 
 #include <gdk/gdk.h>
+#include <glib/gi18n.h>
 
 /* ═══════════════════════════════════════════════════════════════════
  *  GsrShortcutAccelDialog — Ptyxis-style key capture dialog
@@ -241,19 +242,19 @@ gsr_shortcut_accel_dialog_class_init(GsrShortcutAccelDialogClass *klass)
 static void
 build_dialog_ui(GsrShortcutAccelDialog *self)
 {
-    adw_dialog_set_title(ADW_DIALOG(self), "Set Shortcut");
+    adw_dialog_set_title(ADW_DIALOG(self), _("Set Shortcut"));
     adw_dialog_set_content_width(ADW_DIALOG(self), 400);
     adw_dialog_set_content_height(ADW_DIALOG(self), 260);
 
     /* ── Header bar ─── */
     AdwHeaderBar *header = ADW_HEADER_BAR(adw_header_bar_new());
 
-    self->cancel_button = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
+    self->cancel_button = GTK_BUTTON(gtk_button_new_with_label(_("Cancel")));
     g_signal_connect(self->cancel_button, "clicked",
         G_CALLBACK(on_cancel_clicked), self);
     adw_header_bar_pack_start(header, GTK_WIDGET(self->cancel_button));
 
-    self->set_button = GTK_BUTTON(gtk_button_new_with_label("Set"));
+    self->set_button = GTK_BUTTON(gtk_button_new_with_label(_("Set")));
     gtk_widget_add_css_class(GTK_WIDGET(self->set_button), "suggested-action");
     gtk_widget_set_sensitive(GTK_WIDGET(self->set_button), FALSE);
     g_signal_connect(self->set_button, "clicked",
@@ -280,9 +281,9 @@ build_dialog_ui(GsrShortcutAccelDialog *self)
     gtk_box_append(capture_box, GTK_WIDGET(keyboard_icon));
 
     g_autofree char *escaped_title = g_markup_escape_text(
-        self->shortcut_title ? self->shortcut_title : "Shortcut", -1);
+        self->shortcut_title ? self->shortcut_title : _("Shortcut"), -1);
     g_autofree char *label_text = g_strdup_printf(
-        "Enter new shortcut for\n<b>%s</b>", escaped_title);
+        _("Enter new shortcut for\n<b>%s</b>"), escaped_title);
     self->capture_label = GTK_LABEL(gtk_label_new(NULL));
     gtk_label_set_markup(self->capture_label, label_text);
     gtk_label_set_justify(self->capture_label, GTK_JUSTIFY_CENTER);
@@ -290,7 +291,7 @@ build_dialog_ui(GsrShortcutAccelDialog *self)
     gtk_box_append(capture_box, GTK_WIDGET(self->capture_label));
 
     self->capture_hint = GTK_LABEL(gtk_label_new(
-        "Press Escape to cancel or Backspace to disable the shortcut."));
+        _("Press Escape to cancel or Backspace to disable the shortcut.")));
     gtk_widget_add_css_class(GTK_WIDGET(self->capture_hint), "dim-label");
     gtk_label_set_wrap(self->capture_hint, TRUE);
     gtk_label_set_justify(self->capture_hint, GTK_JUSTIFY_CENTER);
@@ -309,9 +310,9 @@ build_dialog_ui(GsrShortcutAccelDialog *self)
 
     GtkLabel *display_title = GTK_LABEL(gtk_label_new(NULL));
     g_autofree char *escaped_display_title = g_markup_escape_text(
-        self->shortcut_title ? self->shortcut_title : "Shortcut", -1);
+        self->shortcut_title ? self->shortcut_title : _("Shortcut"), -1);
     g_autofree char *display_text = g_strdup_printf(
-        "Shortcut for <b>%s</b>", escaped_display_title);
+        _("Shortcut for <b>%s</b>"), escaped_display_title);
     gtk_label_set_markup(display_title, display_text);
     gtk_label_set_justify(display_title, GTK_JUSTIFY_CENTER);
     gtk_label_set_wrap(display_title, TRUE);

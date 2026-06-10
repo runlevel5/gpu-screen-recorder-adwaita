@@ -1,0 +1,792 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: gpu-screen-recorder-adwaita\n"
+"Report-Msgid-Bugs-To: https://github.com/runlevel5/gpu-screen-recorder-adwaita/issues\n"
+"POT-Creation-Date: 2026-06-10 13:23+1000\n"
+"PO-Revision-Date: 2026-06-10 13:40+1000\n"
+"Last-Translator: Trung Lê <8@tle.id.au>\n"
+"Language-Team: French\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+
+#: src/main.c:34
+msgid "Adwaita Port"
+msgstr "Portage Adwaita"
+
+#. ── Stream section ───
+#: src/main.c:57 src/gsr-window.c:894 src/gsr-stream-page.c:450
+msgid "Stream"
+msgstr "Diffusion"
+
+#: src/main.c:59
+msgid "Start / Stop streaming"
+msgstr "Démarrer / Arrêter la diffusion"
+
+#. ── Record section ───
+#: src/main.c:63 src/gsr-window.c:896 src/gsr-record-page.c:702
+msgid "Record"
+msgstr "Enregistrement"
+
+#: src/main.c:65
+msgid "Start / Stop recording"
+msgstr "Démarrer / Arrêter l'enregistrement"
+
+#: src/main.c:67
+msgid "Pause / Unpause recording"
+msgstr "Suspendre / Reprendre l'enregistrement"
+
+#. ── Replay section ───
+#: src/main.c:71 src/gsr-window.c:898 src/gsr-replay-page.c:682
+msgid "Replay"
+msgstr "Relecture instantanée"
+
+#: src/main.c:73
+msgid "Start / Stop replay"
+msgstr "Démarrer / Arrêter la relecture instantanée"
+
+#: src/main.c:75 src/gsr-replay-page.c:262 src/gsr-replay-page.c:321
+#: src/gsr-replay-page.c:356 src/gsr-replay-page.c:454
+msgid "Save replay"
+msgstr "Enregistrer la relecture instantanée"
+
+#: src/gsr-window.c:94
+msgid "streaming"
+msgstr "la diffusion"
+
+#: src/gsr-window.c:95
+msgid "recording"
+msgstr "l'enregistrement"
+
+#: src/gsr-window.c:96
+msgid "replay"
+msgstr "la relecture instantanée"
+
+#: src/gsr-window.c:97
+msgid "unknown"
+msgstr "l'opération inconnue"
+
+#: src/gsr-window.c:182
+msgid "Open Folder"
+msgstr "Ouvrir le dossier"
+
+#: src/gsr-window.c:574 src/gsr-window.c:1127
+#, c-format
+msgid "Recording saved to %s"
+msgstr "Enregistrement sauvegardé dans %s"
+
+#: src/gsr-window.c:581 src/gsr-window.c:1134
+#, c-format
+msgid "Stopped %s"
+msgstr "Arrêt de %s"
+
+#: src/gsr-window.c:589
+msgid ""
+"You need to have pkexec installed and have a polkit agent running to record "
+"your monitor"
+msgstr "Vous devez avoir pkexec installé et un agent polkit en cours d'exécution pour enregistrer votre écran"
+
+#: src/gsr-window.c:592
+msgid ""
+"Desktop portal capture failed. Either you canceled the desktop portal or "
+"your Wayland compositor doesn't support desktop portal capture or it's "
+"incorrectly setup on your system"
+msgstr "La capture par portail du bureau a échoué. Soit vous avez annulé le portail du bureau, soit votre compositeur Wayland ne prend pas en charge la capture par portail du bureau, soit elle est mal configurée sur votre système"
+
+#: src/gsr-window.c:597
+msgid ""
+"Failed to save video. Either your graphics card doesn't support GPU Screen "
+"Recorder with the settings you used or you don't have enough disk space. "
+"Start GPU Screen Recorder from the terminal for more info"
+msgstr "Échec de la sauvegarde de la vidéo. Soit votre carte graphique ne prend pas en charge GPU Screen Recorder avec les paramètres utilisés, soit vous n'avez pas assez d'espace disque. Démarrez GPU Screen Recorder depuis le terminal pour plus d'informations"
+
+#: src/gsr-window.c:697
+msgid "Simple"
+msgstr "Simple"
+
+#: src/gsr-window.c:702
+msgid "Advanced"
+msgstr "Avancé"
+
+#: src/gsr-window.c:713
+msgid "Keyboard Shortcuts"
+msgstr "Raccourcis clavier"
+
+#: src/gsr-window.c:714
+msgid "About"
+msgstr "À propos"
+
+#: src/gsr-window.c:726
+msgid "View"
+msgstr "Affichage"
+
+#: src/gsr-window.c:781
+msgid "OK"
+msgstr ""
+
+#: src/gsr-window.c:799
+msgid "Failed to run gpu-screen-recorder"
+msgstr "Échec de l'exécution de gpu-screen-recorder"
+
+#: src/gsr-window.c:800
+msgid ""
+"Failed to run the <tt>gpu-screen-recorder</tt> command.\n"
+"\n"
+"Make sure <tt>gpu-screen-recorder</tt> is installed and accessible in your "
+"PATH."
+msgstr "Échec de l'exécution de la commande <tt>gpu-screen-recorder</tt>.\n\nAssurez-vous que <tt>gpu-screen-recorder</tt> est installé et accessible dans votre PATH."
+
+#: src/gsr-window.c:807
+msgid "OpenGL initialization failed"
+msgstr "Échec de l'initialisation d'OpenGL"
+
+#: src/gsr-window.c:808
+msgid ""
+"Failed to get OpenGL information.\n"
+"\n"
+"Make sure your GPU drivers are properly installed. You may need to install "
+"the Vulkan or Mesa drivers for your GPU."
+msgstr "Échec de la récupération des informations OpenGL.\n\nAssurez-vous que les pilotes de votre GPU sont correctement installés. Vous devrez peut-être installer les pilotes Vulkan ou Mesa pour votre GPU."
+
+#: src/gsr-window.c:815
+msgid "No DRM card found"
+msgstr "Aucune carte DRM trouvée"
+
+#: src/gsr-window.c:816
+msgid ""
+"Failed to find a valid DRM card for your GPU.\n"
+"\n"
+"If you are running in a VM, make sure GPU passthrough is enabled and "
+"properly configured."
+msgstr "Impossible de trouver une carte DRM valide pour votre GPU.\n\nSi vous utilisez une machine virtuelle, assurez-vous que le passthrough GPU est activé et correctement configuré."
+
+#: src/gsr-window.c:828
+msgid "No display server detected"
+msgstr "Aucun serveur d'affichage détecté"
+
+#: src/gsr-window.c:829
+msgid ""
+"Neither X11 nor Wayland is running.\n"
+"\n"
+"GPU Screen Recorder requires either X11 or Wayland."
+msgstr "Ni X11 ni Wayland n'est en cours d'exécution.\n\nGPU Screen Recorder nécessite X11 ou Wayland."
+
+#: src/gsr-window.c:840
+msgid "No monitors found"
+msgstr "Aucun écran trouvé"
+
+#: src/gsr-window.c:841
+msgid ""
+"No monitors to record were found.\n"
+"\n"
+"Make sure GPU Screen Recorder is running on the same GPU that your monitors "
+"are connected to. You can use the <tt>DRI_PRIME</tt> environment variable to "
+"choose a GPU."
+msgstr "Aucun écran à enregistrer n'a été trouvé.\n\nAssurez-vous que GPU Screen Recorder s'exécute sur le même GPU que celui auquel vos écrans sont connectés. Vous pouvez utiliser la variable d'environnement <tt>DRI_PRIME</tt> pour choisir un GPU."
+
+#: src/gsr-window.c:892 src/gsr-config-page.c:740
+msgid "Config"
+msgstr "Configuration"
+
+#: src/gsr-window.c:1060
+msgid "No window selected! Please select a window first."
+msgstr "Aucune fenêtre sélectionnée ! Veuillez d'abord sélectionner une fenêtre."
+
+#: src/gsr-window.c:1069
+msgid "Failed to build command (no window selected)"
+msgstr "Échec de la construction de la commande (aucune fenêtre sélectionnée)"
+
+#: src/gsr-window.c:1080
+#, c-format
+msgid "Failed to start %s (failed to fork)"
+msgstr "Échec du démarrage de %s (échec du fork)"
+
+#: src/gsr-window.c:1095
+#, c-format
+msgid "Started %s"
+msgstr "Démarrage de %s"
+
+#: src/gsr-window.c:1155
+msgid "Saved replay"
+msgstr "Relecture instantanée sauvegardée"
+
+#: src/gsr-config-page.c:162
+msgid "(no name)"
+msgstr "(sans nom)"
+
+#: src/gsr-config-page.c:185
+msgid "Failed to grab pointer"
+msgstr "Échec de la capture du pointeur"
+
+#: src/gsr-config-page.c:194
+msgid "Capture Target"
+msgstr "Cible de capture"
+
+#: src/gsr-config-page.c:207
+msgid "Window"
+msgstr "Fenêtre"
+
+#: src/gsr-config-page.c:213
+msgid "Focused window"
+msgstr "Fenêtre active"
+
+#: src/gsr-config-page.c:224
+#, c-format
+msgid "Monitor %s (%dx%d)"
+msgstr "Écran %s (%dx%d)"
+
+#: src/gsr-config-page.c:226
+#, c-format
+msgid "Monitor %s"
+msgstr "Écran %s"
+
+#: src/gsr-config-page.c:234
+msgid "Desktop portal (no HDR)"
+msgstr "Portail du bureau (sans HDR)"
+
+#: src/gsr-config-page.c:239
+msgid "Record area"
+msgstr "Zone d'enregistrement"
+
+#: src/gsr-config-page.c:259
+msgid "Select window..."
+msgstr "Sélectionner une fenêtre..."
+
+#: src/gsr-config-page.c:260
+msgid "Click to pick a window"
+msgstr "Cliquez pour choisir une fenêtre"
+
+#: src/gsr-config-page.c:276
+msgid "Change video resolution"
+msgstr "Modifier la résolution vidéo"
+
+#: src/gsr-config-page.c:284
+msgid "Video width"
+msgstr "Largeur de la vidéo"
+
+#: src/gsr-config-page.c:290
+msgid "Video height"
+msgstr "Hauteur de la vidéo"
+
+#: src/gsr-config-page.c:297
+msgid "Area width"
+msgstr "Largeur de la zone"
+
+#: src/gsr-config-page.c:303
+msgid "Area height"
+msgstr "Hauteur de la zone"
+
+#: src/gsr-config-page.c:311
+msgid "Restore portal session"
+msgstr "Restaurer la session du portail"
+
+#: src/gsr-config-page.c:329
+msgid "Audio"
+msgstr "Audio"
+
+#: src/gsr-config-page.c:339
+msgid "Audio device"
+msgstr "Périphérique audio"
+
+#: src/gsr-config-page.c:349
+msgid "App audio"
+msgstr "Audio des applications"
+
+#: src/gsr-config-page.c:359
+msgid "Custom app"
+msgstr "Application personnalisée"
+
+#: src/gsr-config-page.c:384
+msgid "Split audio tracks"
+msgstr "Séparer les pistes audio"
+
+#: src/gsr-config-page.c:392
+msgid "Record all apps except selected"
+msgstr "Enregistrer toutes les applications sauf celles sélectionnées"
+
+#: src/gsr-config-page.c:400
+msgid "Audio codec"
+msgstr "Codec audio"
+
+#: src/gsr-config-page.c:402
+msgid "Opus (Recommended)"
+msgstr "Opus (recommandé)"
+
+#: src/gsr-config-page.c:402
+#: com.dec05eba.gpu_screen_recorder.metainfo.xml.in:41
+msgid "AAC"
+msgstr ""
+
+#: src/gsr-config-page.c:496 src/gsr-config-page.c:954
+msgid "Device"
+msgstr "Périphérique"
+
+#: src/gsr-config-page.c:519 src/gsr-config-page.c:531
+#: src/gsr-config-page.c:929 src/gsr-config-page.c:933
+msgid "Application"
+msgstr "Application"
+
+#: src/gsr-config-page.c:552
+msgid "Video"
+msgstr ""
+
+#: src/gsr-config-page.c:558
+msgid "Video quality"
+msgstr "Qualité vidéo"
+
+#: src/gsr-config-page.c:560
+msgid "Constant bitrate"
+msgstr "Débit constant"
+
+#: src/gsr-config-page.c:561
+msgid "Medium"
+msgstr "Moyenne"
+
+#: src/gsr-config-page.c:561
+msgid "High"
+msgstr "Haute"
+
+#: src/gsr-config-page.c:562
+msgid "Very High"
+msgstr "Très haute"
+
+#: src/gsr-config-page.c:563
+msgid "Ultra"
+msgstr "Ultra"
+
+#: src/gsr-config-page.c:572
+msgid "Video bitrate (kbps)"
+msgstr "Débit vidéo (kbps)"
+
+#: src/gsr-config-page.c:583
+msgid "Auto"
+msgstr "Auto"
+
+#: src/gsr-config-page.c:584
+msgid "H.264"
+msgstr ""
+
+#: src/gsr-config-page.c:585
+msgid "H.264 (N/A)"
+msgstr ""
+
+#: src/gsr-config-page.c:586
+msgid "HEVC"
+msgstr ""
+
+#: src/gsr-config-page.c:587
+msgid "HEVC (N/A)"
+msgstr ""
+
+#: src/gsr-config-page.c:588
+msgid "HEVC 10-bit"
+msgstr ""
+
+#: src/gsr-config-page.c:589
+msgid "HEVC 10-bit (N/A)"
+msgstr ""
+
+#: src/gsr-config-page.c:592
+msgid "HEVC HDR"
+msgstr ""
+
+#: src/gsr-config-page.c:592
+msgid "HEVC HDR (X11 N/A)"
+msgstr ""
+
+#: src/gsr-config-page.c:593
+msgid "HEVC HDR (N/A)"
+msgstr ""
+
+#: src/gsr-config-page.c:594
+msgid "AV1"
+msgstr ""
+
+#: src/gsr-config-page.c:595
+msgid "AV1 (N/A)"
+msgstr ""
+
+#: src/gsr-config-page.c:596
+msgid "AV1 10-bit"
+msgstr ""
+
+#: src/gsr-config-page.c:597
+msgid "AV1 10-bit (N/A)"
+msgstr ""
+
+#: src/gsr-config-page.c:600
+msgid "AV1 HDR"
+msgstr ""
+
+#: src/gsr-config-page.c:600
+msgid "AV1 HDR (X11 N/A)"
+msgstr ""
+
+#: src/gsr-config-page.c:601
+msgid "AV1 HDR (N/A)"
+msgstr ""
+
+#: src/gsr-config-page.c:602
+#: com.dec05eba.gpu_screen_recorder.metainfo.xml.in:35
+msgid "VP8"
+msgstr ""
+
+#: src/gsr-config-page.c:602
+msgid "VP8 (N/A)"
+msgstr ""
+
+#: src/gsr-config-page.c:603
+#: com.dec05eba.gpu_screen_recorder.metainfo.xml.in:36
+msgid "VP9"
+msgstr ""
+
+#: src/gsr-config-page.c:603
+msgid "VP9 (N/A)"
+msgstr ""
+
+#: src/gsr-config-page.c:604
+msgid "H.264 Software (slow)"
+msgstr ""
+
+#: src/gsr-config-page.c:605
+msgid "H.264 Software (N/A)"
+msgstr ""
+
+#: src/gsr-config-page.c:616
+msgid "Video codec"
+msgstr "Codec vidéo"
+
+#: src/gsr-config-page.c:624
+msgid "Color range"
+msgstr "Plage de couleurs"
+
+#: src/gsr-config-page.c:626
+msgid "Limited"
+msgstr "Limitée"
+
+#: src/gsr-config-page.c:626
+msgid "Full"
+msgstr "Complète"
+
+#: src/gsr-config-page.c:634
+msgid "Frame rate"
+msgstr "Fréquence d'images"
+
+#: src/gsr-config-page.c:640
+msgid "Frame rate mode"
+msgstr "Mode de fréquence d'images"
+
+#: src/gsr-config-page.c:642
+msgid "Auto (Recommended)"
+msgstr "Auto (recommandé)"
+
+#: src/gsr-config-page.c:642
+msgid "Constant"
+msgstr "Constante"
+
+#: src/gsr-config-page.c:642
+msgid "Variable"
+msgstr "Variable"
+
+#: src/gsr-config-page.c:651
+msgid "Overclock memory transfer rate"
+msgstr "Surcadencer le débit de transfert mémoire"
+
+#: src/gsr-config-page.c:659
+msgid "Record cursor"
+msgstr "Enregistrer le curseur"
+
+#: src/gsr-config-page.c:672
+msgid "Notifications"
+msgstr "Notifications"
+
+#: src/gsr-config-page.c:677
+msgid "Show started notification"
+msgstr "Afficher la notification de démarrage"
+
+#: src/gsr-config-page.c:683
+msgid "Show stopped notification"
+msgstr "Afficher la notification d'arrêt"
+
+#: src/gsr-config-page.c:689
+msgid "Show video saved notification"
+msgstr "Afficher la notification de vidéo sauvegardée"
+
+#: src/gsr-record-page.c:136 src/gsr-replay-page.c:130
+msgid "Select save directory"
+msgstr "Sélectionner le dossier de sauvegarde"
+
+#: src/gsr-record-page.c:252 src/gsr-record-page.c:336
+#: src/gsr-record-page.c:358
+msgid "Start/Stop recording"
+msgstr "Démarrer/Arrêter l'enregistrement"
+
+#: src/gsr-record-page.c:283 src/gsr-record-page.c:342
+#: src/gsr-record-page.c:377
+msgid "Pause/Unpause recording"
+msgstr "Suspendre/Reprendre l'enregistrement"
+
+#: src/gsr-record-page.c:294 src/gsr-replay-page.c:273
+#: src/gsr-stream-page.c:222
+msgid "Hotkeys"
+msgstr "Raccourcis"
+
+#: src/gsr-record-page.c:302 src/gsr-replay-page.c:281
+#: src/gsr-stream-page.c:230
+msgid ""
+"Your Wayland compositor doesn't support global hotkeys.\n"
+"Use X11 or KDE Plasma on Wayland if you want to use hotkeys."
+msgstr "Votre compositeur Wayland ne prend pas en charge les raccourcis globaux.\nUtilisez X11 ou KDE Plasma sur Wayland si vous souhaitez utiliser les raccourcis."
+
+#: src/gsr-record-page.c:317 src/gsr-replay-page.c:296
+#: src/gsr-stream-page.c:245
+msgid "Hotkeys are managed by KDE Plasma"
+msgstr "Les raccourcis sont gérés par KDE Plasma"
+
+#: src/gsr-record-page.c:319 src/gsr-replay-page.c:298
+#: src/gsr-stream-page.c:247
+msgid "Click to configure hotkeys in system settings"
+msgstr "Cliquez pour configurer les raccourcis dans les paramètres système"
+
+#: src/gsr-record-page.c:321 src/gsr-replay-page.c:300
+#: src/gsr-stream-page.c:249
+msgid "Change hotkeys"
+msgstr "Modifier les raccourcis"
+
+#: src/gsr-record-page.c:327 src/gsr-replay-page.c:306
+#: src/gsr-stream-page.c:256
+msgid "Hotkeys are managed by your compositor"
+msgstr "Les raccourcis sont gérés par votre compositeur"
+
+#: src/gsr-record-page.c:329 src/gsr-replay-page.c:308
+#: src/gsr-stream-page.c:258
+msgid "Go to system settings to change hotkeys"
+msgstr "Allez dans les paramètres système pour modifier les raccourcis"
+
+#: src/gsr-record-page.c:404 src/gsr-replay-page.c:383
+msgid "Output"
+msgstr "Sortie"
+
+#: src/gsr-record-page.c:410 src/gsr-replay-page.c:389
+msgid "Save directory"
+msgstr "Dossier de sauvegarde"
+
+#: src/gsr-record-page.c:426 src/gsr-replay-page.c:405
+#: src/gsr-stream-page.c:349
+msgid "Container"
+msgstr "Conteneur"
+
+#: src/gsr-record-page.c:458 src/gsr-record-page.c:641
+msgid "Start recording"
+msgstr "Démarrer l'enregistrement"
+
+#: src/gsr-record-page.c:466 src/gsr-record-page.c:645
+#: src/gsr-record-page.c:668
+msgid "Pause recording"
+msgstr "Suspendre l'enregistrement"
+
+#: src/gsr-record-page.c:633
+msgid "Stop recording"
+msgstr "Arrêter l'enregistrement"
+
+#: src/gsr-record-page.c:663
+msgid "Unpause recording"
+msgstr "Reprendre l'enregistrement"
+
+#: src/gsr-replay-page.c:232 src/gsr-replay-page.c:315
+#: src/gsr-replay-page.c:337
+msgid "Start/Stop replay"
+msgstr "Démarrer/Arrêter la relecture instantanée"
+
+#: src/gsr-replay-page.c:427
+msgid "Replay time (seconds)"
+msgstr "Durée de la relecture instantanée (secondes)"
+
+#: src/gsr-replay-page.c:446 src/gsr-replay-page.c:635
+msgid "Start replay"
+msgstr "Démarrer la relecture instantanée"
+
+#: src/gsr-replay-page.c:628
+msgid "Stop replay"
+msgstr "Arrêter la relecture instantanée"
+
+#: src/gsr-stream-page.c:211 src/gsr-stream-page.c:265
+#: src/gsr-stream-page.c:280
+msgid "Start/Stop streaming"
+msgstr "Démarrer/Arrêter la diffusion"
+
+#: src/gsr-stream-page.c:308
+msgid "Streaming Service"
+msgstr "Service de diffusion"
+
+#: src/gsr-stream-page.c:313
+msgid "Service"
+msgstr "Service"
+
+#: src/gsr-stream-page.c:315
+msgid "Twitch"
+msgstr ""
+
+#: src/gsr-stream-page.c:315
+msgid "YouTube"
+msgstr ""
+
+#: src/gsr-stream-page.c:315
+msgid "Custom"
+msgstr "Personnalisé"
+
+#: src/gsr-stream-page.c:326 src/gsr-stream-page.c:333
+msgid "Stream key"
+msgstr "Clé de diffusion"
+
+#: src/gsr-stream-page.c:341
+msgid "URL"
+msgstr ""
+
+#: src/gsr-stream-page.c:383 src/gsr-stream-page.c:604
+msgid "Start streaming"
+msgstr "Démarrer la diffusion"
+
+#: src/gsr-stream-page.c:598
+msgid "Stop streaming"
+msgstr "Arrêter la diffusion"
+
+#: src/gsr-shortcut-accel-dialog.c:245
+msgid "Set Shortcut"
+msgstr "Définir le raccourci"
+
+#: src/gsr-shortcut-accel-dialog.c:252
+msgid "Cancel"
+msgstr "Annuler"
+
+#: src/gsr-shortcut-accel-dialog.c:257
+msgid "Set"
+msgstr "Définir"
+
+#: src/gsr-shortcut-accel-dialog.c:284 src/gsr-shortcut-accel-dialog.c:313
+msgid "Shortcut"
+msgstr "Raccourci"
+
+#: src/gsr-shortcut-accel-dialog.c:286
+#, c-format
+msgid ""
+"Enter new shortcut for\n"
+"<b>%s</b>"
+msgstr "Saisissez le nouveau raccourci pour\n<b>%s</b>"
+
+#: src/gsr-shortcut-accel-dialog.c:294
+msgid "Press Escape to cancel or Backspace to disable the shortcut."
+msgstr "Appuyez sur Échap pour annuler ou Retour arrière pour désactiver le raccourci."
+
+#: src/gsr-shortcut-accel-dialog.c:315
+#, c-format
+msgid "Shortcut for <b>%s</b>"
+msgstr "Raccourci pour <b>%s</b>"
+
+#: com.dec05eba.gpu_screen_recorder.desktop.in:3
+#: com.dec05eba.gpu_screen_recorder.metainfo.xml.in:4
+msgid "GPU Screen Recorder"
+msgstr ""
+
+#: com.dec05eba.gpu_screen_recorder.desktop.in:4
+msgid "Screen recorder"
+msgstr "Enregistreur d'écran"
+
+#: com.dec05eba.gpu_screen_recorder.desktop.in:5
+msgid "A gpu based screen recorder / streaming program"
+msgstr "Un programme d'enregistrement et de diffusion d'écran basé sur le GPU"
+
+#: com.dec05eba.gpu_screen_recorder.desktop.in:9
+msgid "gpu-screen-recorder;screen recorder;streaming;twitch;replay;shadowplay;"
+msgstr "gpu-screen-recorder;enregistreur d'écran;diffusion;twitch;relecture instantanée;shadowplay;"
+
+#: com.dec05eba.gpu_screen_recorder.metainfo.xml.in:5
+msgid ""
+"A shadowplay-like screen recorder for Linux. The fastest screen recorder for "
+"Linux"
+msgstr "Un enregistreur d'écran de type shadowplay pour Linux. L'enregistreur d'écran le plus rapide pour Linux"
+
+#: com.dec05eba.gpu_screen_recorder.metainfo.xml.in:7
+msgid "dec05eba"
+msgstr ""
+
+#: com.dec05eba.gpu_screen_recorder.metainfo.xml.in:21
+msgid ""
+"This is a screen recorder that has minimal impact on system performance by "
+"recording a monitor using the GPU only, similar to shadowplay on windows. "
+"This is the fastest screen recording tool for Linux. This screen recorder "
+"works on X11 and Wayland on AMD, Intel and NVIDIA."
+msgstr "Il s'agit d'un enregistreur d'écran qui a un impact minimal sur les performances du système en enregistrant un écran à l'aide du GPU uniquement, à la manière de shadowplay sur Windows. C'est l'outil d'enregistrement d'écran le plus rapide pour Linux. Cet enregistreur d'écran fonctionne sur X11 et Wayland avec AMD, Intel et NVIDIA."
+
+#: com.dec05eba.gpu_screen_recorder.metainfo.xml.in:24
+msgid ""
+"This screen recorder can be used for recording your desktop offline, for "
+"live streaming and for nvidia-like instant replay, where only the last few "
+"minutes are saved."
+msgstr "Cet enregistreur d'écran peut être utilisé pour enregistrer votre bureau hors ligne, pour la diffusion en direct et pour la relecture instantanée à la manière de NVIDIA, où seules les dernières minutes sont sauvegardées."
+
+#: com.dec05eba.gpu_screen_recorder.metainfo.xml.in:27
+msgid ""
+"This is the GNOME (libadwaita) frontend for GPU Screen Recorder, providing a "
+"modern Adwaita UI for screen recording, streaming, and replay (ShadowPlay-"
+"like) functionality."
+msgstr "Il s'agit de l'interface GNOME (libadwaita) pour GPU Screen Recorder, fournissant une interface Adwaita moderne pour l'enregistrement d'écran, la diffusion et la relecture instantanée (de type ShadowPlay)."
+
+#: com.dec05eba.gpu_screen_recorder.metainfo.xml.in:30
+msgid "Supported video codecs:"
+msgstr "Codecs vidéo pris en charge :"
+
+#: com.dec05eba.gpu_screen_recorder.metainfo.xml.in:32
+msgid "H264 (default)"
+msgstr ""
+
+#: com.dec05eba.gpu_screen_recorder.metainfo.xml.in:33
+msgid "HEVC (Optionally with HDR)"
+msgstr ""
+
+#: com.dec05eba.gpu_screen_recorder.metainfo.xml.in:34
+msgid "AV1 (Optionally with HDR)"
+msgstr ""
+
+#: com.dec05eba.gpu_screen_recorder.metainfo.xml.in:38
+msgid "Supported audio codecs:"
+msgstr "Codecs audio pris en charge :"
+
+#: com.dec05eba.gpu_screen_recorder.metainfo.xml.in:40
+msgid "Opus (default)"
+msgstr ""
+
+#: com.dec05eba.gpu_screen_recorder.metainfo.xml.in:43
+msgid ""
+"Videos are in variable framerate format by default. Use MPV to play such "
+"videos, otherwise you might experience stuttering in the video if you are "
+"using a buggy video player. Alternatively change framerate mode to constant "
+"framerate."
+msgstr "Les vidéos sont au format à fréquence d'images variable par défaut. Utilisez MPV pour lire ces vidéos, sinon vous pourriez constater des saccades dans la vidéo si vous utilisez un lecteur vidéo défectueux. Vous pouvez également changer le mode de fréquence d'images en fréquence d'images constante."
+
+#: com.dec05eba.gpu_screen_recorder.metainfo.xml.in:44
+msgid "For more information visit the GPU Screen Recorder homepage."
+msgstr "Pour plus d'informations, visitez la page d'accueil de GPU Screen Recorder."
+
+#: com.dec05eba.gpu_screen_recorder.metainfo.xml.in:50
+msgid "Recording page"
+msgstr "Page d'enregistrement"
+
+#: com.dec05eba.gpu_screen_recorder.metainfo.xml.in:59
+msgid "Initial release of the GNOME (libadwaita) frontend"
+msgstr "Version initiale de l'interface GNOME (libadwaita)"
+
+#: com.dec05eba.gpu_screen_recorder.metainfo.xml.in:60
+msgid "Port from GTK3 to libadwaita (GTK4/Adwaita)"
+msgstr "Portage de GTK3 vers libadwaita (GTK4/Adwaita)"
+
+#: com.dec05eba.gpu_screen_recorder.metainfo.xml.in:61
+msgid "Support for screen recording, streaming, and replay"
+msgstr "Prise en charge de l'enregistrement d'écran, de la diffusion et de la relecture instantanée"
+
+#: com.dec05eba.gpu_screen_recorder.metainfo.xml.in:62
+msgid "X11 and Wayland support with global hotkeys"
+msgstr "Prise en charge de X11 et Wayland avec raccourcis globaux"

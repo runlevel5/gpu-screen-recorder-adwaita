@@ -1,4 +1,8 @@
+#include <locale.h>
+
 #include <adwaita.h>
+#include <glib/gi18n.h>
+
 #include "gsr-window.h"
 
 /* ── About dialog ────────────────────────────────────────────────── */
@@ -29,7 +33,7 @@ on_about_action(GSimpleAction *action,
     const char *developers[] = { "dec05eba", NULL };
     adw_about_dialog_set_developers(about, developers);
 
-    adw_about_dialog_add_credit_section(about, "Adwaita Port",
+    adw_about_dialog_add_credit_section(about, _("Adwaita Port"),
         (const char *[]){ "Trung Lê", NULL });
 
     adw_dialog_present(ADW_DIALOG(about), GTK_WIDGET(win));
@@ -52,25 +56,25 @@ on_shortcuts_action(GSimpleAction *action,
         adw_shortcuts_dialog_new());
 
     /* ── Stream section ─── */
-    AdwShortcutsSection *stream_sec = adw_shortcuts_section_new("Stream");
+    AdwShortcutsSection *stream_sec = adw_shortcuts_section_new(_("Stream"));
     adw_shortcuts_section_add(stream_sec,
-        adw_shortcuts_item_new("Start / Stop streaming", "<Alt>1"));
+        adw_shortcuts_item_new(_("Start / Stop streaming"), "<Alt>1"));
     adw_shortcuts_dialog_add(dialog, stream_sec);
 
     /* ── Record section ─── */
-    AdwShortcutsSection *record_sec = adw_shortcuts_section_new("Record");
+    AdwShortcutsSection *record_sec = adw_shortcuts_section_new(_("Record"));
     adw_shortcuts_section_add(record_sec,
-        adw_shortcuts_item_new("Start / Stop recording", "<Alt>1"));
+        adw_shortcuts_item_new(_("Start / Stop recording"), "<Alt>1"));
     adw_shortcuts_section_add(record_sec,
-        adw_shortcuts_item_new("Pause / Unpause recording", "<Alt>2"));
+        adw_shortcuts_item_new(_("Pause / Unpause recording"), "<Alt>2"));
     adw_shortcuts_dialog_add(dialog, record_sec);
 
     /* ── Replay section ─── */
-    AdwShortcutsSection *replay_sec = adw_shortcuts_section_new("Replay");
+    AdwShortcutsSection *replay_sec = adw_shortcuts_section_new(_("Replay"));
     adw_shortcuts_section_add(replay_sec,
-        adw_shortcuts_item_new("Start / Stop replay", "<Alt>1"));
+        adw_shortcuts_item_new(_("Start / Stop replay"), "<Alt>1"));
     adw_shortcuts_section_add(replay_sec,
-        adw_shortcuts_item_new("Save replay", "<Alt>2"));
+        adw_shortcuts_item_new(_("Save replay"), "<Alt>2"));
     adw_shortcuts_dialog_add(dialog, replay_sec);
 
     adw_dialog_present(ADW_DIALOG(dialog), GTK_WIDGET(win));
@@ -154,6 +158,11 @@ on_activate(GtkApplication *app, gpointer user_data)
 int
 main(int argc, char *argv[])
 {
+    setlocale(LC_ALL, "");
+    bindtextdomain(GETTEXT_PACKAGE, GSR_LOCALEDIR);
+    bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+    textdomain(GETTEXT_PACKAGE);
+
     g_autoptr(AdwApplication) app = adw_application_new(
         "com.dec05eba.gpu_screen_recorder",
         G_APPLICATION_DEFAULT_FLAGS);

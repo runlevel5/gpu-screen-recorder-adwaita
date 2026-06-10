@@ -1,0 +1,9 @@
+src/main.c
+src/gsr-window.c
+src/gsr-config-page.c
+src/gsr-record-page.c
+src/gsr-replay-page.c
+src/gsr-stream-page.c
+src/gsr-shortcut-accel-dialog.c
+com.dec05eba.gpu_screen_recorder.desktop.in
+com.dec05eba.gpu_screen_recorder.metainfo.xml.in
