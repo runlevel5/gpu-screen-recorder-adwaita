@@ -76,6 +76,46 @@ on_shortcuts_action(GSimpleAction *action,
     adw_dialog_present(ADW_DIALOG(dialog), GTK_WIDGET(win));
 }
 
+/* ── Open containing folder (from "Recording saved" notification) ──── */
+
+static void
+on_open_folder_finished(GObject      *source,
+                        GAsyncResult *result,
+                        gpointer      user_data)
+{
+    (void)user_data;
+
+    GtkFileLauncher *launcher = GTK_FILE_LAUNCHER(source);
+    GError *error = NULL;
+    if (!gtk_file_launcher_open_containing_folder_finish(launcher, result,
+                                                         &error)) {
+        /* Cancellation is not an error worth reporting. */
+        if (!g_error_matches(error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+            g_warning("Failed to open containing folder: %s", error->message);
+        g_clear_error(&error);
+    }
+}
+
+static void
+on_open_folder_action(GSimpleAction *action,
+                      GVariant      *parameter,
+                      gpointer       user_data)
+{
+    (void)action;
+
+    GtkApplication *app = GTK_APPLICATION(user_data);
+    const char *path = parameter ? g_variant_get_string(parameter, NULL) : NULL;
+    if (!path || !*path)
+        return;
+
+    GtkWindow *win = gtk_application_get_active_window(app);
+
+    g_autoptr(GFile) file = g_file_new_for_path(path);
+    g_autoptr(GtkFileLauncher) launcher = gtk_file_launcher_new(file);
+    gtk_file_launcher_open_containing_folder(launcher, win, NULL,
+        on_open_folder_finished, NULL);
+}
+
 /* ── Application activate ────────────────────────────────────────── */
 
 static void
@@ -122,6 +162,8 @@ main(int argc, char *argv[])
     static const GActionEntry app_actions[] = {
         { .name = "shortcuts", .activate = on_shortcuts_action },
         { .name = "about", .activate = on_about_action },
+        { .name = "open-folder", .activate = on_open_folder_action,
+          .parameter_type = "s" },
     };
     g_action_map_add_action_entries(G_ACTION_MAP(app),
         app_actions, G_N_ELEMENTS(app_actions), app);
