@@ -1,10 +1,13 @@
 #include "gsr-record-page.h"
+
+#include <signal.h>
+#include <time.h>
+
+#include "gsr-window.h"
+
 #ifdef HAVE_X11
 #include "gsr-shortcut-accel-dialog.h"
 #endif
-#include "gsr-window.h"
-#include <signal.h>
-#include <time.h>
 
 /* ═══════════════════════════════════════════════════════════════════
  *  GsrRecordPage — "Record" tab
@@ -231,8 +234,7 @@ on_x11_start_stop_shortcut_set(GsrShortcutAccelDialog *dialog,
     GsrRecordPage *self = GSR_RECORD_PAGE(user_data);
     const char *accel = gsr_shortcut_accel_dialog_get_accelerator(dialog);
 
-    g_free(self->x11_start_stop_accel);
-    self->x11_start_stop_accel = g_strdup(accel);
+    g_set_str(&self->x11_start_stop_accel, accel);
 
     if (self->x11_start_stop_label)
         gtk_shortcut_label_set_accelerator(self->x11_start_stop_label,
@@ -263,8 +265,7 @@ on_x11_pause_shortcut_set(GsrShortcutAccelDialog *dialog,
     GsrRecordPage *self = GSR_RECORD_PAGE(user_data);
     const char *accel = gsr_shortcut_accel_dialog_get_accelerator(dialog);
 
-    g_free(self->x11_pause_accel);
-    self->x11_pause_accel = g_strdup(accel);
+    g_set_str(&self->x11_pause_accel, accel);
 
     if (self->x11_pause_label)
         gtk_shortcut_label_set_accelerator(self->x11_pause_label,
@@ -503,10 +504,7 @@ gsr_record_page_finalize(GObject *object)
 {
     GsrRecordPage *self = GSR_RECORD_PAGE(object);
 
-    if (self->timer_source_id) {
-        g_source_remove(self->timer_source_id);
-        self->timer_source_id = 0;
-    }
+    g_clear_handle_id(&self->timer_source_id, g_source_remove);
 
     g_free(self->save_directory);
 #ifdef HAVE_X11
@@ -585,8 +583,7 @@ gsr_record_page_apply_config(GsrRecordPage *self, const GsrConfig *config)
 
     /* Save directory */
     if (r->save_directory && r->save_directory[0]) {
-        g_free(self->save_directory);
-        self->save_directory = g_strdup(r->save_directory);
+        g_set_str(&self->save_directory, r->save_directory);
         adw_action_row_set_subtitle(self->save_dir_row, self->save_directory);
     }
 
@@ -617,12 +614,10 @@ gsr_record_page_read_config(GsrRecordPage *self, GsrConfig *config)
     GsrRecordConfig *r = &config->record_config;
 
     /* Save directory */
-    g_free(r->save_directory);
-    r->save_directory = g_strdup(self->save_directory ? self->save_directory : "");
+    g_set_str(&r->save_directory, self->save_directory ? self->save_directory : "");
 
     /* Container */
-    g_free(r->container);
-    r->container = g_strdup(container_display_to_id(
+    g_set_str(&r->container, container_display_to_id(
         combo_row_get_selected_string(self->container_row)));
 
     /* Hotkeys */
@@ -660,10 +655,7 @@ gsr_record_page_set_active(GsrRecordPage *self, gboolean active)
         /* Reset internal state (handles external stop via handle_child_death) */
         self->is_active = FALSE;
         self->is_paused = FALSE;
-        if (self->timer_source_id) {
-            g_source_remove(self->timer_source_id);
-            self->timer_source_id = 0;
-        }
+        g_clear_handle_id(&self->timer_source_id, g_source_remove);
     }
 }
 

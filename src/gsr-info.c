@@ -258,19 +258,19 @@ gsr_info_clear(GsrInfo *info)
 bool
 gsr_info_is_codec_supported(const GsrInfo *info, const char *codec_id)
 {
-    if (strcmp(codec_id, "auto") == 0)        return true;
+    if (g_strcmp0(codec_id, "auto") == 0)        return true;
 
     const GsrSupportedVideoCodecs *vc = &info->supported_video_codecs;
-    if (strcmp(codec_id, "h264") == 0)           return vc->h264;
-    if (strcmp(codec_id, "h264_software") == 0)  return vc->h264_software;
-    if (strcmp(codec_id, "hevc") == 0)           return vc->hevc;
-    if (strcmp(codec_id, "hevc_hdr") == 0)       return vc->hevc_hdr;
-    if (strcmp(codec_id, "hevc_10bit") == 0)     return vc->hevc_10bit;
-    if (strcmp(codec_id, "av1") == 0)            return vc->av1;
-    if (strcmp(codec_id, "av1_hdr") == 0)        return vc->av1_hdr;
-    if (strcmp(codec_id, "av1_10bit") == 0)      return vc->av1_10bit;
-    if (strcmp(codec_id, "vp8") == 0)            return vc->vp8;
-    if (strcmp(codec_id, "vp9") == 0)            return vc->vp9;
+    if (g_strcmp0(codec_id, "h264") == 0)           return vc->h264;
+    if (g_strcmp0(codec_id, "h264_software") == 0)  return vc->h264_software;
+    if (g_strcmp0(codec_id, "hevc") == 0)           return vc->hevc;
+    if (g_strcmp0(codec_id, "hevc_hdr") == 0)       return vc->hevc_hdr;
+    if (g_strcmp0(codec_id, "hevc_10bit") == 0)     return vc->hevc_10bit;
+    if (g_strcmp0(codec_id, "av1") == 0)            return vc->av1;
+    if (g_strcmp0(codec_id, "av1_hdr") == 0)        return vc->av1_hdr;
+    if (g_strcmp0(codec_id, "av1_10bit") == 0)      return vc->av1_10bit;
+    if (g_strcmp0(codec_id, "vp8") == 0)            return vc->vp8;
+    if (g_strcmp0(codec_id, "vp9") == 0)            return vc->vp9;
     return false;
 }
 
@@ -278,10 +278,10 @@ bool
 gsr_info_is_capture_option_enabled(const GsrInfo *info, const char *option_id)
 {
     if (info->system_info.display_server == GSR_DISPLAY_SERVER_WAYLAND) {
-        if (strcmp(option_id, "window") == 0 || strcmp(option_id, "focused") == 0)
+        if (g_strcmp0(option_id, "window") == 0 || g_strcmp0(option_id, "focused") == 0)
             return false;
     }
-    if (strcmp(option_id, "portal") == 0)
+    if (g_strcmp0(option_id, "portal") == 0)
         return info->supported_capture_options.portal;
     return true;
 }

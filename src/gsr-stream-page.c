@@ -1,9 +1,12 @@
 #include "gsr-stream-page.h"
+
+#include <time.h>
+
+#include "gsr-window.h"
+
 #ifdef HAVE_X11
 #include "gsr-shortcut-accel-dialog.h"
 #endif
-#include "gsr-window.h"
-#include <time.h>
 
 /* ═══════════════════════════════════════════════════════════════════
  *  GsrStreamPage — "Stream" tab
@@ -185,8 +188,7 @@ on_x11_start_stop_shortcut_set(GsrShortcutAccelDialog *dialog,
     GsrStreamPage *self = GSR_STREAM_PAGE(user_data);
     const char *accel = gsr_shortcut_accel_dialog_get_accelerator(dialog);
 
-    g_free(self->x11_start_stop_accel);
-    self->x11_start_stop_accel = g_strdup(accel);
+    g_set_str(&self->x11_start_stop_accel, accel);
 
     if (self->x11_start_stop_label)
         gtk_shortcut_label_set_accelerator(self->x11_start_stop_label,
@@ -415,10 +417,7 @@ gsr_stream_page_finalize(GObject *object)
 {
     GsrStreamPage *self = GSR_STREAM_PAGE(object);
 
-    if (self->timer_source_id) {
-        g_source_remove(self->timer_source_id);
-        self->timer_source_id = 0;
-    }
+    g_clear_handle_id(&self->timer_source_id, g_source_remove);
 
 #ifdef HAVE_X11
     g_free(self->x11_start_stop_accel);
@@ -571,24 +570,16 @@ gsr_stream_page_read_config(GsrStreamPage *self, GsrConfig *config)
 {
     GsrStreamingConfig *s = &config->streaming_config;
 
-    g_free(s->streaming_service);
-    s->streaming_service = g_strdup(service_index_to_string(
+    g_set_str(&s->streaming_service, service_index_to_string(
         adw_combo_row_get_selected(self->service_row)));
 
-    g_free(s->twitch_stream_key);
-    s->twitch_stream_key = g_strdup(
-        gtk_editable_get_text(GTK_EDITABLE(self->twitch_key_row)));
+    g_set_str(&s->twitch_stream_key, gtk_editable_get_text(GTK_EDITABLE(self->twitch_key_row)));
 
-    g_free(s->youtube_stream_key);
-    s->youtube_stream_key = g_strdup(
-        gtk_editable_get_text(GTK_EDITABLE(self->youtube_key_row)));
+    g_set_str(&s->youtube_stream_key, gtk_editable_get_text(GTK_EDITABLE(self->youtube_key_row)));
 
-    g_free(s->custom_url);
-    s->custom_url = g_strdup(
-        gtk_editable_get_text(GTK_EDITABLE(self->custom_url_row)));
+    g_set_str(&s->custom_url, gtk_editable_get_text(GTK_EDITABLE(self->custom_url_row)));
 
-    g_free(s->custom_container);
-    s->custom_container = g_strdup(stream_container_display_to_id(
+    g_set_str(&s->custom_container, stream_container_display_to_id(
         combo_row_get_selected_string(self->container_row)));
 
     /* Hotkeys */
@@ -618,10 +609,7 @@ gsr_stream_page_set_active(GsrStreamPage *self, gboolean active)
 
         /* Reset internal state (handles external stop via handle_child_death) */
         self->is_active = FALSE;
-        if (self->timer_source_id) {
-            g_source_remove(self->timer_source_id);
-            self->timer_source_id = 0;
-        }
+        g_clear_handle_id(&self->timer_source_id, g_source_remove);
     }
 }
 

@@ -1,15 +1,15 @@
 #include "gsr-config.h"
 
+#include <errno.h>
+#include <inttypes.h>
+#include <libgen.h>
+#include <limits.h>
+#include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
-#include <inttypes.h>
-#include <unistd.h>
-#include <limits.h>
-#include <libgen.h>
-#include <pwd.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include <gtk/gtk.h>
 

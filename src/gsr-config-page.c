@@ -1023,10 +1023,9 @@ gsr_config_page_read_config(GsrConfigPage *self, GsrConfig *config)
 
     /* ── Capture Target ── */
     guint ra_idx = adw_combo_row_get_selected(self->record_area_row);
-    g_free(m->record_area_option);
-    m->record_area_option = (ra_idx < (guint)self->n_record_area_ids)
-        ? g_strdup(self->record_area_ids[ra_idx])
-        : g_strdup("");
+    g_set_str(&m->record_area_option,
+        (ra_idx < (guint)self->n_record_area_ids)
+            ? self->record_area_ids[ra_idx] : "");
 
     m->change_video_resolution = adw_switch_row_get_active(self->change_resolution_row);
     m->video_width = (int32_t)adw_spin_row_get_value(self->video_width_row);
@@ -1041,8 +1040,7 @@ gsr_config_page_read_config(GsrConfigPage *self, GsrConfig *config)
     if (m->audio_input) {
         for (int i = 0; i < m->n_audio_input; i++)
             g_free(m->audio_input[i]);
-        g_free(m->audio_input);
-        m->audio_input = NULL;
+        g_clear_pointer(&m->audio_input, g_free);
         m->n_audio_input = 0;
     }
 
@@ -1111,33 +1109,28 @@ gsr_config_page_read_config(GsrConfigPage *self, GsrConfig *config)
     m->record_app_audio_inverted = adw_switch_row_get_active(self->app_audio_inverted_row);
 
     /* Audio codec */
-    g_free(m->audio_codec);
-    m->audio_codec = g_strdup(audio_codec_index_to_string(
+    g_set_str(&m->audio_codec, audio_codec_index_to_string(
         adw_combo_row_get_selected(self->audio_codec_row)));
 
     /* ── Video ── */
-    g_free(m->quality);
-    m->quality = g_strdup(quality_index_to_string(
+    g_set_str(&m->quality, quality_index_to_string(
         adw_combo_row_get_selected(self->quality_row)));
 
     m->video_bitrate = (int32_t)adw_spin_row_get_value(self->bitrate_row);
 
     /* Video codec */
     guint vc_idx = adw_combo_row_get_selected(self->video_codec_row);
-    g_free(m->codec);
-    m->codec = (vc_idx < (guint)self->n_video_codec_ids)
-        ? g_strdup(self->video_codec_ids[vc_idx])
-        : g_strdup("auto");
+    g_set_str(&m->codec,
+        (vc_idx < (guint)self->n_video_codec_ids)
+            ? self->video_codec_ids[vc_idx] : "auto");
 
     /* Color range */
-    g_free(m->color_range);
-    m->color_range = g_strdup(color_range_index_to_string(
+    g_set_str(&m->color_range, color_range_index_to_string(
         adw_combo_row_get_selected(self->color_range_row)));
 
     m->fps = (int32_t)adw_spin_row_get_value(self->fps_row);
 
-    g_free(m->framerate_mode);
-    m->framerate_mode = g_strdup(framerate_mode_index_to_string(
+    g_set_str(&m->framerate_mode, framerate_mode_index_to_string(
         adw_combo_row_get_selected(self->framerate_mode_row)));
 
     m->overclock = adw_switch_row_get_active(self->overclock_row);
@@ -1366,7 +1359,7 @@ gsr_config_page_build_audio_args(GsrConfigPage *self, gboolean merge_tracks)
             g_string_append(merged, g_ptr_array_index(tracks, i));
         }
         g_ptr_array_set_size(tracks, 0);
-        g_ptr_array_add(tracks, g_string_free(merged, FALSE));
+        g_ptr_array_add(tracks, g_string_free_and_steal(merged));
     }
 
     return tracks;

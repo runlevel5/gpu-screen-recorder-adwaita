@@ -1,5 +1,4 @@
-#ifndef GLOBAL_SHORTCUTS_H
-#define GLOBAL_SHORTCUTS_H
+#pragma once
 
 /* Global shortcuts via desktop portal */
 
@@ -37,5 +36,3 @@ bool gsr_global_shortcuts_list_shortcuts(gsr_global_shortcuts *self, gsr_shortcu
 bool gsr_global_shortcuts_bind_shortcuts(gsr_global_shortcuts *self, const gsr_bind_shortcut *shortcuts, int num_shortcuts, gsr_shortcut_callback callback, void *userdata);
 
 bool gsr_global_shortcuts_subscribe_activated_signal(gsr_global_shortcuts *self, gsr_deactivated_callback deactivated_callback, gsr_shortcut_callback shortcut_changed_callback, void *userdata);
-
-#endif /* GLOBAL_SHORTCUTS_H */

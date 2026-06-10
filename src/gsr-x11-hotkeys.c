@@ -2,11 +2,11 @@
 
 #include <stdlib.h>
 #include <string.h>
+
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-
-#include <glib.h>
 #include <glib-unix.h>
+#include <glib.h>
 
 /* ── Internal types ──────────────────────────────────────────────── */
 

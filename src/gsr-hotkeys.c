@@ -1,10 +1,11 @@
 #include "gsr-hotkeys.h"
-#include "gsr-window.h"
-#include "gsr-config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "gsr-config.h"
+#include "gsr-window.h"
 
 /*
  * On X11 we use gsr-x11-hotkeys.h for XGrabKey + GSource polling.
@@ -14,8 +15,9 @@
  */
 
 #ifdef HAVE_X11
-#include "gsr-x11-hotkeys.h"
 #include <X11/keysym.h>
+
+#include "gsr-x11-hotkeys.h"
 #ifdef GDK_WINDOWING_X11
 #include <gdk/x11/gdkx.h>
 #endif
@@ -202,17 +204,17 @@ on_wayland_deactivated(const char *shortcut_id, void *userdata)
     /* The portal uses 3 shared IDs across all modes.
      * Dispatch based on the currently visible page. */
 
-    if (strcmp(shortcut_id, SHORTCUT_ID_START_STOP) == 0) {
+    if (g_strcmp0(shortcut_id, SHORTCUT_ID_START_STOP) == 0) {
         if (g_str_equal(page, "stream") ||
             g_str_equal(page, "record") ||
             g_str_equal(page, "replay"))
         {
             dispatch_start_stop(self);
         }
-    } else if (strcmp(shortcut_id, SHORTCUT_ID_PAUSE_UNPAUSE) == 0) {
+    } else if (g_strcmp0(shortcut_id, SHORTCUT_ID_PAUSE_UNPAUSE) == 0) {
         if (g_str_equal(page, "record"))
             dispatch_pause_unpause(self);
-    } else if (strcmp(shortcut_id, SHORTCUT_ID_SAVE_REPLAY) == 0) {
+    } else if (g_strcmp0(shortcut_id, SHORTCUT_ID_SAVE_REPLAY) == 0) {
         if (g_str_equal(page, "replay"))
             dispatch_save_replay(self);
     }

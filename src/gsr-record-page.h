@@ -1,8 +1,9 @@
 #pragma once
 
 #include <adwaita.h>
-#include "gsr-info.h"
+
 #include "gsr-config.h"
+#include "gsr-info.h"
 
 G_BEGIN_DECLS
 

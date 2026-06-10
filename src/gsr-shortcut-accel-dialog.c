@@ -76,8 +76,7 @@ update_display(GsrShortcutAccelDialog *self)
 static void
 set_accelerator(GsrShortcutAccelDialog *self, const char *accel)
 {
-    g_free(self->accelerator);
-    self->accelerator = g_strdup(accel);
+    g_set_str(&self->accelerator, accel);
 }
 
 /**
