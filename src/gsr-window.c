@@ -1,17 +1,18 @@
 #include "gsr-window.h"
-#include "gsr-info.h"
-#include "gsr-config.h"
-#include "gsr-config-page.h"
-#include "gsr-stream-page.h"
-#include "gsr-record-page.h"
-#include "gsr-replay-page.h"
-#include "gsr-hotkeys.h"
 
+#include <errno.h>
 #include <signal.h>
 #include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
-#include <errno.h>
+
+#include "gsr-config-page.h"
+#include "gsr-config.h"
+#include "gsr-hotkeys.h"
+#include "gsr-info.h"
+#include "gsr-record-page.h"
+#include "gsr-replay-page.h"
+#include "gsr-stream-page.h"
 
 #ifdef __linux__
 #include <sys/prctl.h>
@@ -71,6 +72,7 @@ struct _GsrWindow {
 
     /* ── Startup error state ─── */
     GsrInfoExitStatus   info_status;        /* cached for deferred dialog */
+    guint               startup_idle_id;    /* deferred error-check idle */
 };
 
 G_DEFINE_FINAL_TYPE(GsrWindow, gsr_window, ADW_TYPE_APPLICATION_WINDOW)
@@ -162,10 +164,7 @@ send_notification(GsrWindow *self, const char *title,
     g_object_unref(notif);
 
     /* Auto-withdraw after timeout */
-    if (self->notification_timeout_id) {
-        g_source_remove(self->notification_timeout_id);
-        self->notification_timeout_id = 0;
-    }
+    g_clear_handle_id(&self->notification_timeout_id, g_source_remove);
     guint timeout_ms = (effective >= G_NOTIFICATION_PRIORITY_URGENT) ? 10000 : 3000;
     self->notification_timeout_id = g_timeout_add(timeout_ms, on_notification_withdraw, self);
 
@@ -405,8 +404,7 @@ build_command_args(GsrWindow *self, GsrActiveMode mode)
         char *filename = build_record_filename(
             save_dir ? save_dir : "/tmp", ext);
 
-        g_free(self->record_filename);
-        self->record_filename = g_strdup(filename);
+        g_set_str(&self->record_filename, filename);
 
         g_ptr_array_add(args, g_strdup("-o"));
         g_ptr_array_add(args, filename); /* transfers ownership */
@@ -526,10 +524,7 @@ handle_child_death(GsrWindow *self, int exit_status)
     g_debug("Child died with exit_status=%d, mode=%d", exit_status, mode);
 
     /* Stop the poll timer */
-    if (self->poll_timer_id) {
-        g_source_remove(self->poll_timer_id);
-        self->poll_timer_id = 0;
-    }
+    g_clear_handle_id(&self->poll_timer_id, g_source_remove);
 
     /* Enter the "stopped" state on the appropriate page */
     switch (mode) {
@@ -648,10 +643,7 @@ on_close_request(GtkWindow *window, gpointer user_data G_GNUC_UNUSED)
     }
 
     /* Stop poll timer */
-    if (self->poll_timer_id) {
-        g_source_remove(self->poll_timer_id);
-        self->poll_timer_id = 0;
-    }
+    g_clear_handle_id(&self->poll_timer_id, g_source_remove);
 
     /* Free hotkeys before the window is destroyed */
     if (self->hotkeys) {
@@ -660,10 +652,7 @@ on_close_request(GtkWindow *window, gpointer user_data G_GNUC_UNUSED)
     }
 
     /* Withdraw any pending desktop notification and cancel its timer */
-    if (self->notification_timeout_id) {
-        g_source_remove(self->notification_timeout_id);
-        self->notification_timeout_id = 0;
-    }
+    g_clear_handle_id(&self->notification_timeout_id, g_source_remove);
     if (self->showing_notification) {
         GtkApplication *app = GTK_APPLICATION(
             gtk_window_get_application(GTK_WINDOW(self)));
@@ -784,10 +773,11 @@ show_fatal_error(GsrWindow *self, const char *heading, const char *body)
     adw_dialog_present(ADW_DIALOG(dlg), GTK_WIDGET(self));
 }
 
-static gboolean
+static void
 check_startup_errors_idle(gpointer user_data)
 {
     GsrWindow *self = GSR_WINDOW(user_data);
+    self->startup_idle_id = 0; /* source auto-removes after this one-shot */
 
     switch (self->info_status) {
     case GSR_INFO_EXIT_FAILED_TO_RUN:
@@ -796,7 +786,7 @@ check_startup_errors_idle(gpointer user_data)
             "Failed to run the <tt>gpu-screen-recorder</tt> command.\n\n"
             "Make sure <tt>gpu-screen-recorder</tt> is installed and "
             "accessible in your PATH.");
-        return G_SOURCE_REMOVE;
+        return;
 
     case GSR_INFO_EXIT_OPENGL_FAILED:
         show_fatal_error(self,
@@ -804,7 +794,7 @@ check_startup_errors_idle(gpointer user_data)
             "Failed to get OpenGL information.\n\n"
             "Make sure your GPU drivers are properly installed. "
             "You may need to install the Vulkan or Mesa drivers for your GPU.");
-        return G_SOURCE_REMOVE;
+        return;
 
     case GSR_INFO_EXIT_NO_DRM_CARD:
         show_fatal_error(self,
@@ -812,7 +802,7 @@ check_startup_errors_idle(gpointer user_data)
             "Failed to find a valid DRM card for your GPU.\n\n"
             "If you are running in a VM, make sure GPU passthrough is "
             "enabled and properly configured.");
-        return G_SOURCE_REMOVE;
+        return;
 
     case GSR_INFO_EXIT_OK:
         break;
@@ -824,7 +814,7 @@ check_startup_errors_idle(gpointer user_data)
             "No display server detected",
             "Neither X11 nor Wayland is running.\n\n"
             "GPU Screen Recorder requires either X11 or Wayland.");
-        return G_SOURCE_REMOVE;
+        return;
     }
 
     /* Check for monitors (Wayland without portal needs monitors) */
@@ -838,10 +828,8 @@ check_startup_errors_idle(gpointer user_data)
             "Make sure GPU Screen Recorder is running on the same GPU "
             "that your monitors are connected to. You can use the "
             "<tt>DRI_PRIME</tt> environment variable to choose a GPU.");
-        return G_SOURCE_REMOVE;
+        return;
     }
-
-    return G_SOURCE_REMOVE;
 }
 
 /* ── GObject boilerplate ─────────────────────────────────────────── */
@@ -994,7 +982,7 @@ gsr_window_init(GsrWindow *self)
 #endif
 
     /* ── Deferred startup error check ─── */
-    g_idle_add(check_startup_errors_idle, self);
+    self->startup_idle_id = g_idle_add_once(check_startup_errors_idle, self);
 }
 
 static void
@@ -1002,15 +990,11 @@ gsr_window_finalize(GObject *object)
 {
     GsrWindow *self = GSR_WINDOW(object);
 
-    if (self->poll_timer_id) {
-        g_source_remove(self->poll_timer_id);
-        self->poll_timer_id = 0;
-    }
+    g_clear_handle_id(&self->startup_idle_id, g_source_remove);
 
-    if (self->notification_timeout_id) {
-        g_source_remove(self->notification_timeout_id);
-        self->notification_timeout_id = 0;
-    }
+    g_clear_handle_id(&self->poll_timer_id, g_source_remove);
+
+    g_clear_handle_id(&self->notification_timeout_id, g_source_remove);
 
     if (self->hotkeys) {
         gsr_hotkeys_free(self->hotkeys);
@@ -1121,10 +1105,7 @@ gsr_window_stop_process(GsrWindow *self, gboolean *already_dead)
     gboolean success = kill_and_wait(pid, already_dead);
 
     /* Stop poll timer */
-    if (self->poll_timer_id) {
-        g_source_remove(self->poll_timer_id);
-        self->poll_timer_id = 0;
-    }
+    g_clear_handle_id(&self->poll_timer_id, g_source_remove);
 
     self->active_mode = GSR_ACTIVE_MODE_NONE;
 

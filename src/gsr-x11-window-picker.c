@@ -2,13 +2,13 @@
 
 #include <stdlib.h>
 #include <string.h>
+
+#include <X11/Xatom.h>
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
-#include <X11/Xatom.h>
-
-#include <glib.h>
 #include <glib-unix.h>
+#include <glib.h>
 
 /* ── Internal struct ─────────────────────────────────────────────── */
 

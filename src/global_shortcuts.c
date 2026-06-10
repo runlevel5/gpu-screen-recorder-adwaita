@@ -1,9 +1,11 @@
 #include "global_shortcuts.h"
-#include <stdio.h>
+
 #include <errno.h>
+#include <stdio.h>
 #include <string.h>
-#include <sys/random.h>
+
 #include <gio/gio.h>
+#include <sys/random.h>
 
 static bool generate_random_characters(char *buffer, int buffer_size, const char *alphabet, size_t alphabet_size) {
     if(getrandom(buffer, buffer_size, 0) < buffer_size) {
@@ -109,25 +111,25 @@ static void signal_callback(GDBusConnection *connection,
     signal_userdata *cu = userdata;
     
     /* Button released */
-    if(strcmp(signal_name, "Deactivated") == 0) {
+    if(g_strcmp0(signal_name, "Deactivated") == 0) {
         gchar *session_handle = NULL;
         gchar *shortcut_id = NULL;
         guint64 timestamp = 0;
         GVariant *options = NULL;
         g_variant_get(parameters, "(ost@a{sv})", &session_handle, &shortcut_id, &timestamp, &options);
 
-        if(session_handle && shortcut_id && strcmp(session_handle, cu->self->session_handle) == 0)
+        if(session_handle && shortcut_id && g_strcmp0(session_handle, cu->self->session_handle) == 0)
             cu->deactivated_callback(shortcut_id, cu->userdata);
 
         g_free(session_handle);
         g_free(shortcut_id);
         if(options) g_variant_unref(options);
-    } else if(strcmp(signal_name, "ShortcutsChanged") == 0) {
+    } else if(g_strcmp0(signal_name, "ShortcutsChanged") == 0) {
         gchar *session_handle = NULL;
         GVariant *shortcuts = NULL;
         g_variant_get(parameters, "(o@a(sa{sv}))", &session_handle, &shortcuts);
 
-        if(session_handle && shortcuts && strcmp(session_handle, cu->self->session_handle) == 0)
+        if(session_handle && shortcuts && g_strcmp0(session_handle, cu->self->session_handle) == 0)
             handle_shortcuts_data(shortcuts, cu->shortcut_changed_callback, cu->userdata);
 
         g_free(session_handle);
@@ -239,10 +241,7 @@ bool gsr_global_shortcuts_init(gsr_global_shortcuts *self, gsr_init_callback cal
 }
 
 void gsr_global_shortcuts_deinit(gsr_global_shortcuts *self) {
-    if(self->gdbus_con) {
-        g_object_unref(self->gdbus_con);
-        self->gdbus_con = NULL;
-    }
+    g_clear_object(&self->gdbus_con);
 
     if(self->session_handle) {
         free(self->session_handle);

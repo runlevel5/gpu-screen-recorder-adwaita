@@ -1,0 +1,32 @@
+# gobject-linter configuration
+# https://github.com/bilelmoussaoui/gobject-linter
+#
+# Run locally with:   gobject-linter .
+# Auto-fix:           gobject-linter . --fix
+#
+# CI runs this as a blocking gate (see .github/workflows/gobject-linter.yml):
+# every enabled rule is a hard error, so the build fails on any regression.
+
+# libadwaita >= 1.8 pulls in GLib >= 2.80; rules needing a newer GLib are skipped.
+min_glib_version = "2.80"
+
+# Treat every enabled, non-opt-in rule as an error so CI fails on new findings.
+default_level = "error"
+
+# This project deliberately uses the standard C scalar types (int/char/…) rather
+# than the GLib aliases (gint/gchar/…). The alias style is not enforced.
+[rules.type_style]
+level = "ignore"
+
+# The application is not yet internationalized (no gettext domain). Re-enable
+# once translation infrastructure is in place.
+[rules.untranslated_string]
+level = "ignore"
+
+# Advisory only: this rule mis-fires on floating GVariant references (consumed by
+# g_variant_new_tuple/builders) and on objects intentionally kept alive past the
+# function (e.g. the GlobalShortcuts GDBusProxy). Converting those to g_autoptr
+# would over-unref and crash, so it reports rather than blocks. Convert the safe
+# g_autofree/g_autoptr sites manually over time.
+[rules.use_auto_cleanup]
+level = "warn"

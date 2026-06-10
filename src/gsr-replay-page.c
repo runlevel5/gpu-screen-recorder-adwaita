@@ -1,10 +1,13 @@
 #include "gsr-replay-page.h"
+
+#include <signal.h>
+#include <time.h>
+
+#include "gsr-window.h"
+
 #ifdef HAVE_X11
 #include "gsr-shortcut-accel-dialog.h"
 #endif
-#include "gsr-window.h"
-#include <signal.h>
-#include <time.h>
 
 /* ═══════════════════════════════════════════════════════════════════
  *  GsrReplayPage — "Replay" tab
@@ -212,8 +215,7 @@ on_x11_start_stop_shortcut_set(GsrShortcutAccelDialog *dialog,
     GsrReplayPage *self = GSR_REPLAY_PAGE(user_data);
     const char *accel = gsr_shortcut_accel_dialog_get_accelerator(dialog);
 
-    g_free(self->x11_start_stop_accel);
-    self->x11_start_stop_accel = g_strdup(accel);
+    g_set_str(&self->x11_start_stop_accel, accel);
 
     if (self->x11_start_stop_label)
         gtk_shortcut_label_set_accelerator(self->x11_start_stop_label,
@@ -243,8 +245,7 @@ on_x11_save_shortcut_set(GsrShortcutAccelDialog *dialog,
     GsrReplayPage *self = GSR_REPLAY_PAGE(user_data);
     const char *accel = gsr_shortcut_accel_dialog_get_accelerator(dialog);
 
-    g_free(self->x11_save_accel);
-    self->x11_save_accel = g_strdup(accel);
+    g_set_str(&self->x11_save_accel, accel);
 
     if (self->x11_save_label)
         gtk_shortcut_label_set_accelerator(self->x11_save_label,
@@ -491,10 +492,7 @@ gsr_replay_page_finalize(GObject *object)
 {
     GsrReplayPage *self = GSR_REPLAY_PAGE(object);
 
-    if (self->timer_source_id) {
-        g_source_remove(self->timer_source_id);
-        self->timer_source_id = 0;
-    }
+    g_clear_handle_id(&self->timer_source_id, g_source_remove);
 
     g_free(self->save_directory);
 #ifdef HAVE_X11
@@ -573,8 +571,7 @@ gsr_replay_page_apply_config(GsrReplayPage *self, const GsrConfig *config)
 
     /* Save directory */
     if (rp->save_directory && rp->save_directory[0]) {
-        g_free(self->save_directory);
-        self->save_directory = g_strdup(rp->save_directory);
+        g_set_str(&self->save_directory, rp->save_directory);
         adw_action_row_set_subtitle(self->save_dir_row, self->save_directory);
     }
 
@@ -609,12 +606,10 @@ gsr_replay_page_read_config(GsrReplayPage *self, GsrConfig *config)
     GsrReplayConfig *rp = &config->replay_config;
 
     /* Save directory */
-    g_free(rp->save_directory);
-    rp->save_directory = g_strdup(self->save_directory ? self->save_directory : "");
+    g_set_str(&rp->save_directory, self->save_directory ? self->save_directory : "");
 
     /* Container */
-    g_free(rp->container);
-    rp->container = g_strdup(container_display_to_id(
+    g_set_str(&rp->container, container_display_to_id(
         combo_row_get_selected_string(self->container_row)));
 
     /* Replay time */
@@ -650,10 +645,7 @@ gsr_replay_page_set_active(GsrReplayPage *self, gboolean active)
 
         /* Reset internal state (handles external stop via handle_child_death) */
         self->is_active = FALSE;
-        if (self->timer_source_id) {
-            g_source_remove(self->timer_source_id);
-            self->timer_source_id = 0;
-        }
+        g_clear_handle_id(&self->timer_source_id, g_source_remove);
     }
 }
 

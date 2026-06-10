@@ -1,0 +1,44 @@
+name: GObject Lint
+
+# Static analysis of the GObject/GLib C code with gobject-linter.
+# Rules and severities are configured in ./gobject-linter.toml.
+# This is a blocking gate: the "Lint (blocking)" step fails the build on any
+# error-level finding. use_auto_cleanup is configured as a warning and does not
+# block (it mis-fires on floating GVariant references; see gobject-linter.toml).
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  gobject-linter:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bilelmoussaoui/gobject-linter:latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+
+      # Produce SARIF for the Security tab and inline PR annotations.
+      # Never fails the job — the blocking gate below decides pass/fail.
+      - name: Analyze (SARIF)
+        run: gobject-linter . --format sarif > gobject-linter.sarif || true
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        # Pull requests from forks get a read-only token and cannot upload to
+        # code scanning; don't let that fail the run.
+        continue-on-error: true
+        with:
+          sarif_file: gobject-linter.sarif
+          category: gobject-linter
+
+      # Blocking gate: exits non-zero on any error-level finding.
+      - name: Lint (blocking)
+        run: gobject-linter .

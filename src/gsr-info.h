@@ -1,7 +1,8 @@
 #pragma once
 
-#include <glib.h>
 #include <stdbool.h>
+
+#include <glib.h>
 
 G_BEGIN_DECLS
 
