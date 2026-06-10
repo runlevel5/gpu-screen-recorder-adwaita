@@ -143,7 +143,7 @@ send_notification_full(GsrWindow *self, const char *title,
         return;
 
     /* ── Desktop notification ── */
-    GNotification *notif = g_notification_new(title);
+    g_autoptr(GNotification) notif = g_notification_new(title);
     g_notification_set_body(notif, body);
 
     /* KDE workaround: force urgent while capturing */
@@ -167,7 +167,6 @@ send_notification_full(GsrWindow *self, const char *title,
     g_application_send_notification(G_APPLICATION(app),
         "gpu-screen-recorder", notif);
     self->showing_notification = TRUE;
-    g_object_unref(notif);
 
     /* Auto-withdraw after timeout */
     g_clear_handle_id(&self->notification_timeout_id, g_source_remove);
@@ -570,22 +569,20 @@ handle_child_death(GsrWindow *self, int exit_status)
         /* Success */
         if (mode == GSR_ACTIVE_MODE_RECORD && self->record_filename) {
             if (gsr_config_page_get_notify_saved(self->config_page)) {
-                char *msg = g_strdup_printf("Recording saved to %s",
+                g_autofree char *msg = g_strdup_printf("Recording saved to %s",
                     self->record_filename);
                 send_notification_full(self, "GPU Screen Recorder", msg,
                     G_NOTIFICATION_PRIORITY_NORMAL, self->record_filename);
-                g_free(msg);
             }
         } else if (gsr_config_page_get_notify_stopped(self->config_page)) {
             const char *mode_str = active_mode_to_string(mode);
-            char *msg = g_strdup_printf("Stopped %s", mode_str);
+            g_autofree char *msg = g_strdup_printf("Stopped %s", mode_str);
             send_notification(self, "GPU Screen Recorder", msg,
                 G_NOTIFICATION_PRIORITY_NORMAL);
-            g_free(msg);
         }
     } else {
         /* Error — always notify regardless of user prefs */
-        char *msg = NULL;
+        g_autofree char *msg = NULL;
         if (exit_status == 10)
             msg = g_strdup_printf("You need to have pkexec installed and have "
                 "a polkit agent running to record your monitor");
@@ -601,7 +598,6 @@ handle_child_death(GsrWindow *self, int exit_status)
                 "Start GPU Screen Recorder from the terminal for more info");
         send_notification(self, "GPU Screen Recorder", msg,
             G_NOTIFICATION_PRIORITY_URGENT);
-        g_free(msg);
     }
 }
 
@@ -696,29 +692,26 @@ create_primary_menu(GsrWindow *self)
     /* View mode section (with "View" header label) — kept separate for
        dynamic insertion/removal based on the active tab. */
     self->view_section = g_menu_new();
-    GMenuItem *simple_item = g_menu_item_new("Simple", NULL);
+    g_autoptr(GMenuItem) simple_item = g_menu_item_new("Simple", NULL);
     g_menu_item_set_action_and_target_value(simple_item,
         "win.view-mode", g_variant_new_string("simple"));
     g_menu_append_item(self->view_section, simple_item);
-    g_object_unref(simple_item);
 
-    GMenuItem *advanced_item = g_menu_item_new("Advanced", NULL);
+    g_autoptr(GMenuItem) advanced_item = g_menu_item_new("Advanced", NULL);
     g_menu_item_set_action_and_target_value(advanced_item,
         "win.view-mode", g_variant_new_string("advanced"));
     g_menu_append_item(self->view_section, advanced_item);
-    g_object_unref(advanced_item);
 
     /* Start with the View section hidden; it will be shown when the
        Config tab becomes visible. */
     self->view_section_visible = FALSE;
 
     /* About section (always present) */
-    GMenu *about_section = g_menu_new();
+    g_autoptr(GMenu) about_section = g_menu_new();
     g_menu_append(about_section, "Keyboard Shortcuts", "app.shortcuts");
     g_menu_append(about_section, "About", "app.about");
     g_menu_append_section(self->primary_menu, NULL,
         G_MENU_MODEL(about_section));
-    g_object_unref(about_section);
 }
 
 /* ── Hotkey: page changed → regrab + register Wayland shortcuts ─── */
@@ -1082,10 +1075,9 @@ gsr_window_start_process(GsrWindow *self, GsrActiveMode mode)
 
     if (!ok) {
         const char *mode_str = active_mode_to_string(mode);
-        char *msg = g_strdup_printf("Failed to start %s (failed to fork)", mode_str);
+        g_autofree char *msg = g_strdup_printf("Failed to start %s (failed to fork)", mode_str);
         send_notification(self, "GPU Screen Recorder", msg,
             G_NOTIFICATION_PRIORITY_URGENT);
-        g_free(msg);
         return FALSE;
     }
 
@@ -1098,10 +1090,9 @@ gsr_window_start_process(GsrWindow *self, GsrActiveMode mode)
     /* Show "started" notification */
     if (gsr_config_page_get_notify_started(self->config_page)) {
         const char *mode_str = active_mode_to_string(mode);
-        char *msg = g_strdup_printf("Started %s", mode_str);
+        g_autofree char *msg = g_strdup_printf("Started %s", mode_str);
         send_notification(self, "GPU Screen Recorder", msg,
             G_NOTIFICATION_PRIORITY_NORMAL);
-        g_free(msg);
     }
 
     return TRUE;
@@ -1131,18 +1122,16 @@ gsr_window_stop_process(GsrWindow *self, gboolean *already_dead)
     /* Show stop notification (respecting user prefs) */
     if (success && mode == GSR_ACTIVE_MODE_RECORD && self->record_filename) {
         if (gsr_config_page_get_notify_saved(self->config_page)) {
-            char *msg = g_strdup_printf("Recording saved to %s",
+            g_autofree char *msg = g_strdup_printf("Recording saved to %s",
                 self->record_filename);
             send_notification_full(self, "GPU Screen Recorder", msg,
                 G_NOTIFICATION_PRIORITY_NORMAL, self->record_filename);
-            g_free(msg);
         }
     } else if (gsr_config_page_get_notify_stopped(self->config_page)) {
         const char *mode_str = active_mode_to_string(mode);
-        char *msg = g_strdup_printf("Stopped %s", mode_str);
+        g_autofree char *msg = g_strdup_printf("Stopped %s", mode_str);
         send_notification(self, "GPU Screen Recorder", msg,
             G_NOTIFICATION_PRIORITY_NORMAL);
-        g_free(msg);
     }
 
     return success;
