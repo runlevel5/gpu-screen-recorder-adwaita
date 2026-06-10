@@ -6,6 +6,8 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <glib/gi18n.h>
+
 #include "gsr-config-page.h"
 #include "gsr-config.h"
 #include "gsr-hotkeys.h"
@@ -89,10 +91,10 @@ static const char *
 active_mode_to_string(GsrActiveMode mode)
 {
     switch (mode) {
-    case GSR_ACTIVE_MODE_STREAM: return "streaming";
-    case GSR_ACTIVE_MODE_RECORD: return "recording";
-    case GSR_ACTIVE_MODE_REPLAY: return "replay";
-    default:                     return "unknown";
+    case GSR_ACTIVE_MODE_STREAM: return _("streaming");
+    case GSR_ACTIVE_MODE_RECORD: return _("recording");
+    case GSR_ACTIVE_MODE_REPLAY: return _("replay");
+    default:                     return _("unknown");
     }
 }
 
@@ -177,7 +179,7 @@ send_notification_full(GsrWindow *self, const char *title,
     AdwToast *toast = adw_toast_new(body);
     adw_toast_set_timeout(toast, (effective >= G_NOTIFICATION_PRIORITY_URGENT) ? 10 : 3);
     if (open_file_path && *open_file_path) {
-        adw_toast_set_button_label(toast, "Open Folder");
+        adw_toast_set_button_label(toast, _("Open Folder"));
         adw_toast_set_action_name(toast, "app.open-folder");
         adw_toast_set_action_target_value(toast,
             g_variant_new_string(open_file_path));
@@ -569,14 +571,14 @@ handle_child_death(GsrWindow *self, int exit_status)
         /* Success */
         if (mode == GSR_ACTIVE_MODE_RECORD && self->record_filename) {
             if (gsr_config_page_get_notify_saved(self->config_page)) {
-                g_autofree char *msg = g_strdup_printf("Recording saved to %s",
+                g_autofree char *msg = g_strdup_printf(_("Recording saved to %s"),
                     self->record_filename);
                 send_notification_full(self, "GPU Screen Recorder", msg,
                     G_NOTIFICATION_PRIORITY_NORMAL, self->record_filename);
             }
         } else if (gsr_config_page_get_notify_stopped(self->config_page)) {
             const char *mode_str = active_mode_to_string(mode);
-            g_autofree char *msg = g_strdup_printf("Stopped %s", mode_str);
+            g_autofree char *msg = g_strdup_printf(_("Stopped %s"), mode_str);
             send_notification(self, "GPU Screen Recorder", msg,
                 G_NOTIFICATION_PRIORITY_NORMAL);
         }
@@ -584,18 +586,18 @@ handle_child_death(GsrWindow *self, int exit_status)
         /* Error — always notify regardless of user prefs */
         g_autofree char *msg = NULL;
         if (exit_status == 10)
-            msg = g_strdup_printf("You need to have pkexec installed and have "
-                "a polkit agent running to record your monitor");
+            msg = g_strdup(_("You need to have pkexec installed and have "
+                "a polkit agent running to record your monitor"));
         else if (exit_status == 50)
-            msg = g_strdup_printf("Desktop portal capture failed. Either you "
+            msg = g_strdup(_("Desktop portal capture failed. Either you "
                 "canceled the desktop portal or your Wayland compositor "
                 "doesn't support desktop portal capture or it's incorrectly "
-                "setup on your system");
+                "setup on your system"));
         else
-            msg = g_strdup_printf("Failed to save video. Either your graphics "
+            msg = g_strdup(_("Failed to save video. Either your graphics "
                 "card doesn't support GPU Screen Recorder with the settings "
                 "you used or you don't have enough disk space. "
-                "Start GPU Screen Recorder from the terminal for more info");
+                "Start GPU Screen Recorder from the terminal for more info"));
         send_notification(self, "GPU Screen Recorder", msg,
             G_NOTIFICATION_PRIORITY_URGENT);
     }
@@ -692,12 +694,12 @@ create_primary_menu(GsrWindow *self)
     /* View mode section (with "View" header label) — kept separate for
        dynamic insertion/removal based on the active tab. */
     self->view_section = g_menu_new();
-    g_autoptr(GMenuItem) simple_item = g_menu_item_new("Simple", NULL);
+    g_autoptr(GMenuItem) simple_item = g_menu_item_new(_("Simple"), NULL);
     g_menu_item_set_action_and_target_value(simple_item,
         "win.view-mode", g_variant_new_string("simple"));
     g_menu_append_item(self->view_section, simple_item);
 
-    g_autoptr(GMenuItem) advanced_item = g_menu_item_new("Advanced", NULL);
+    g_autoptr(GMenuItem) advanced_item = g_menu_item_new(_("Advanced"), NULL);
     g_menu_item_set_action_and_target_value(advanced_item,
         "win.view-mode", g_variant_new_string("advanced"));
     g_menu_append_item(self->view_section, advanced_item);
@@ -708,8 +710,8 @@ create_primary_menu(GsrWindow *self)
 
     /* About section (always present) */
     g_autoptr(GMenu) about_section = g_menu_new();
-    g_menu_append(about_section, "Keyboard Shortcuts", "app.shortcuts");
-    g_menu_append(about_section, "About", "app.about");
+    g_menu_append(about_section, _("Keyboard Shortcuts"), "app.shortcuts");
+    g_menu_append(about_section, _("About"), "app.about");
     g_menu_append_section(self->primary_menu, NULL,
         G_MENU_MODEL(about_section));
 }
@@ -721,7 +723,7 @@ update_view_section_visibility(GsrWindow *self, gboolean show)
 {
     if (show && !self->view_section_visible) {
         g_menu_insert_section(self->primary_menu, 0,
-            "View", G_MENU_MODEL(self->view_section));
+            _("View"), G_MENU_MODEL(self->view_section));
         self->view_section_visible = TRUE;
     } else if (!show && self->view_section_visible) {
         g_menu_remove(self->primary_menu, 0);
@@ -776,7 +778,7 @@ static void
 show_fatal_error(GsrWindow *self, const char *heading, const char *body)
 {
     AdwAlertDialog *dlg = ADW_ALERT_DIALOG(adw_alert_dialog_new(heading, body));
-    adw_alert_dialog_add_response(dlg, "ok", "OK");
+    adw_alert_dialog_add_response(dlg, "ok", _("OK"));
     adw_alert_dialog_set_default_response(dlg, "ok");
     adw_alert_dialog_set_close_response(dlg, "ok");
     adw_alert_dialog_set_body_use_markup(dlg, TRUE);
@@ -794,26 +796,26 @@ check_startup_errors_idle(gpointer user_data)
     switch (self->info_status) {
     case GSR_INFO_EXIT_FAILED_TO_RUN:
         show_fatal_error(self,
-            "Failed to run gpu-screen-recorder",
-            "Failed to run the <tt>gpu-screen-recorder</tt> command.\n\n"
+            _("Failed to run gpu-screen-recorder"),
+            _("Failed to run the <tt>gpu-screen-recorder</tt> command.\n\n"
             "Make sure <tt>gpu-screen-recorder</tt> is installed and "
-            "accessible in your PATH.");
+            "accessible in your PATH."));
         return;
 
     case GSR_INFO_EXIT_OPENGL_FAILED:
         show_fatal_error(self,
-            "OpenGL initialization failed",
-            "Failed to get OpenGL information.\n\n"
+            _("OpenGL initialization failed"),
+            _("Failed to get OpenGL information.\n\n"
             "Make sure your GPU drivers are properly installed. "
-            "You may need to install the Vulkan or Mesa drivers for your GPU.");
+            "You may need to install the Vulkan or Mesa drivers for your GPU."));
         return;
 
     case GSR_INFO_EXIT_NO_DRM_CARD:
         show_fatal_error(self,
-            "No DRM card found",
-            "Failed to find a valid DRM card for your GPU.\n\n"
+            _("No DRM card found"),
+            _("Failed to find a valid DRM card for your GPU.\n\n"
             "If you are running in a VM, make sure GPU passthrough is "
-            "enabled and properly configured.");
+            "enabled and properly configured."));
         return;
 
     case GSR_INFO_EXIT_OK:
@@ -823,9 +825,9 @@ check_startup_errors_idle(gpointer user_data)
     /* Check display server */
     if (self->info.system_info.display_server == GSR_DISPLAY_SERVER_UNKNOWN) {
         show_fatal_error(self,
-            "No display server detected",
-            "Neither X11 nor Wayland is running.\n\n"
-            "GPU Screen Recorder requires either X11 or Wayland.");
+            _("No display server detected"),
+            _("Neither X11 nor Wayland is running.\n\n"
+            "GPU Screen Recorder requires either X11 or Wayland."));
         return;
     }
 
@@ -835,11 +837,11 @@ check_startup_errors_idle(gpointer user_data)
         !self->info.supported_capture_options.portal)
     {
         show_fatal_error(self,
-            "No monitors found",
-            "No monitors to record were found.\n\n"
+            _("No monitors found"),
+            _("No monitors to record were found.\n\n"
             "Make sure GPU Screen Recorder is running on the same GPU "
             "that your monitors are connected to. You can use the "
-            "<tt>DRI_PRIME</tt> environment variable to choose a GPU.");
+            "<tt>DRI_PRIME</tt> environment variable to choose a GPU."));
         return;
     }
 }
@@ -862,7 +864,7 @@ gsr_window_init(GsrWindow *self)
     self->is_kde = desktop && (g_strstr_len(desktop, -1, "KDE") != NULL);
 
     /* ── Window properties ─── */
-    gtk_window_set_title(GTK_WINDOW(self), "GPU Screen Recorder");
+    gtk_window_set_title(GTK_WINDOW(self), _("GPU Screen Recorder"));
     gtk_window_set_default_size(GTK_WINDOW(self), 580, 600);
     gtk_widget_set_size_request(GTK_WIDGET(self), 430, 300);
 
@@ -887,20 +889,20 @@ gsr_window_init(GsrWindow *self)
     self->replay_page = gsr_replay_page_new(&self->info);
 
     adw_view_stack_add_titled_with_icon(self->view_stack,
-        GTK_WIDGET(self->config_page), "config", "Config", "preferences-system-symbolic");
+        GTK_WIDGET(self->config_page), "config", _("Config"), "preferences-system-symbolic");
     adw_view_stack_add_titled_with_icon(self->view_stack,
-        GTK_WIDGET(self->stream_page), "stream", "Stream", "network-transmit-symbolic");
+        GTK_WIDGET(self->stream_page), "stream", _("Stream"), "network-transmit-symbolic");
     adw_view_stack_add_titled_with_icon(self->view_stack,
-        GTK_WIDGET(self->record_page), "record", "Record", "media-record-symbolic");
+        GTK_WIDGET(self->record_page), "record", _("Record"), "media-record-symbolic");
     adw_view_stack_add_titled_with_icon(self->view_stack,
-        GTK_WIDGET(self->replay_page), "replay", "Replay", "media-playlist-repeat-symbolic");
+        GTK_WIDGET(self->replay_page), "replay", _("Replay"), "media-playlist-repeat-symbolic");
 
     /* ── Header bar with view switcher / title stack ─── */
     self->header_switcher = ADW_VIEW_SWITCHER(adw_view_switcher_new());
     adw_view_switcher_set_stack(self->header_switcher, self->view_stack);
     adw_view_switcher_set_policy(self->header_switcher, ADW_VIEW_SWITCHER_POLICY_WIDE);
 
-    self->header_title_label = GTK_LABEL(gtk_label_new("GPU Screen Recorder"));
+    self->header_title_label = GTK_LABEL(gtk_label_new(_("GPU Screen Recorder")));
     gtk_widget_add_css_class(GTK_WIDGET(self->header_title_label), "title");
 
     /* Stack to hold both the switcher (wide) and title label (narrow) */
@@ -1055,7 +1057,7 @@ gsr_window_start_process(GsrWindow *self, GsrActiveMode mode)
     /* Validate window selection if in "window" mode */
     if (!gsr_config_page_has_valid_window_selection(self->config_page)) {
         send_notification(self, "GPU Screen Recorder",
-            "No window selected! Please select a window first.",
+            _("No window selected! Please select a window first."),
             G_NOTIFICATION_PRIORITY_URGENT);
         return FALSE;
     }
@@ -1064,7 +1066,7 @@ gsr_window_start_process(GsrWindow *self, GsrActiveMode mode)
     GPtrArray *args = build_command_args(self, mode);
     if (!args) {
         send_notification(self, "GPU Screen Recorder",
-            "Failed to build command (no window selected)",
+            _("Failed to build command (no window selected)"),
             G_NOTIFICATION_PRIORITY_URGENT);
         return FALSE;
     }
@@ -1075,7 +1077,7 @@ gsr_window_start_process(GsrWindow *self, GsrActiveMode mode)
 
     if (!ok) {
         const char *mode_str = active_mode_to_string(mode);
-        g_autofree char *msg = g_strdup_printf("Failed to start %s (failed to fork)", mode_str);
+        g_autofree char *msg = g_strdup_printf(_("Failed to start %s (failed to fork)"), mode_str);
         send_notification(self, "GPU Screen Recorder", msg,
             G_NOTIFICATION_PRIORITY_URGENT);
         return FALSE;
@@ -1090,7 +1092,7 @@ gsr_window_start_process(GsrWindow *self, GsrActiveMode mode)
     /* Show "started" notification */
     if (gsr_config_page_get_notify_started(self->config_page)) {
         const char *mode_str = active_mode_to_string(mode);
-        g_autofree char *msg = g_strdup_printf("Started %s", mode_str);
+        g_autofree char *msg = g_strdup_printf(_("Started %s"), mode_str);
         send_notification(self, "GPU Screen Recorder", msg,
             G_NOTIFICATION_PRIORITY_NORMAL);
     }
@@ -1122,14 +1124,14 @@ gsr_window_stop_process(GsrWindow *self, gboolean *already_dead)
     /* Show stop notification (respecting user prefs) */
     if (success && mode == GSR_ACTIVE_MODE_RECORD && self->record_filename) {
         if (gsr_config_page_get_notify_saved(self->config_page)) {
-            g_autofree char *msg = g_strdup_printf("Recording saved to %s",
+            g_autofree char *msg = g_strdup_printf(_("Recording saved to %s"),
                 self->record_filename);
             send_notification_full(self, "GPU Screen Recorder", msg,
                 G_NOTIFICATION_PRIORITY_NORMAL, self->record_filename);
         }
     } else if (gsr_config_page_get_notify_stopped(self->config_page)) {
         const char *mode_str = active_mode_to_string(mode);
-        g_autofree char *msg = g_strdup_printf("Stopped %s", mode_str);
+        g_autofree char *msg = g_strdup_printf(_("Stopped %s"), mode_str);
         send_notification(self, "GPU Screen Recorder", msg,
             G_NOTIFICATION_PRIORITY_NORMAL);
     }
@@ -1150,7 +1152,7 @@ gsr_window_notify_replay_saved(GsrWindow *self)
 {
     g_return_if_fail(GSR_IS_WINDOW(self));
     if (gsr_config_page_get_notify_saved(self->config_page))
-        send_notification(self, "GPU Screen Recorder", "Saved replay",
+        send_notification(self, "GPU Screen Recorder", _("Saved replay"),
             G_NOTIFICATION_PRIORITY_NORMAL);
 }
 

@@ -1,6 +1,7 @@
 #include "gsr-stream-page.h"
 
 #include <time.h>
+#include <glib/gi18n.h>
 
 #include "gsr-window.h"
 
@@ -207,7 +208,7 @@ on_x11_start_stop_activated(AdwActionRow *row G_GNUC_UNUSED,
 {
     GsrStreamPage *self = GSR_STREAM_PAGE(user_data);
     GsrShortcutAccelDialog *dialog = gsr_shortcut_accel_dialog_new(
-        "Start/Stop streaming", self->x11_start_stop_accel);
+        _("Start/Stop streaming"), self->x11_start_stop_accel);
     g_signal_connect(dialog, "shortcut-set",
         G_CALLBACK(on_x11_start_stop_shortcut_set), self);
     adw_dialog_present(ADW_DIALOG(dialog), GTK_WIDGET(self));
@@ -218,7 +219,7 @@ static void
 build_hotkey_group(GsrStreamPage *self)
 {
     self->hotkey_group = ADW_PREFERENCES_GROUP(adw_preferences_group_new());
-    adw_preferences_group_set_title(self->hotkey_group, "Hotkeys");
+    adw_preferences_group_set_title(self->hotkey_group, _("Hotkeys"));
 
     GsrDisplayServer ds = self->info->system_info.display_server;
 
@@ -226,8 +227,8 @@ build_hotkey_group(GsrStreamPage *self)
     if (ds == GSR_DISPLAY_SERVER_WAYLAND) {
         /* "Not supported" label — initially hidden, shown if portal fails */
         self->hotkey_not_supported_label = gtk_label_new(
-            "Your Wayland compositor doesn't support global hotkeys.\n"
-            "Use X11 or KDE Plasma on Wayland if you want to use hotkeys.");
+            _("Your Wayland compositor doesn't support global hotkeys.\n"
+            "Use X11 or KDE Plasma on Wayland if you want to use hotkeys."));
         gtk_label_set_wrap(GTK_LABEL(self->hotkey_not_supported_label), TRUE);
         gtk_widget_add_css_class(self->hotkey_not_supported_label, "dim-label");
         gtk_widget_set_margin_top(self->hotkey_not_supported_label, 6);
@@ -241,27 +242,27 @@ build_hotkey_group(GsrStreamPage *self)
         self->hotkey_info_row = GTK_WIDGET(info_row);
         if (is_kde_wayland()) {
             adw_preferences_row_set_title(ADW_PREFERENCES_ROW(info_row),
-                "Hotkeys are managed by KDE Plasma");
+                _("Hotkeys are managed by KDE Plasma"));
             adw_action_row_set_subtitle(info_row,
-                "Click to configure hotkeys in system settings");
+                _("Click to configure hotkeys in system settings"));
             GtkButton *change_btn = GTK_BUTTON(
-                gtk_button_new_with_label("Change hotkeys"));
+                gtk_button_new_with_label(_("Change hotkeys")));
             gtk_widget_set_valign(GTK_WIDGET(change_btn), GTK_ALIGN_CENTER);
             /* The button will be wired to gsr_hotkeys from the window */
             g_object_set_data(G_OBJECT(info_row), "change-button", change_btn);
             adw_action_row_add_suffix(info_row, GTK_WIDGET(change_btn));
         } else {
             adw_preferences_row_set_title(ADW_PREFERENCES_ROW(info_row),
-                "Hotkeys are managed by your compositor");
+                _("Hotkeys are managed by your compositor"));
             adw_action_row_set_subtitle(info_row,
-                "Go to system settings to change hotkeys");
+                _("Go to system settings to change hotkeys"));
         }
         adw_preferences_group_add(self->hotkey_group, GTK_WIDGET(info_row));
 
         /* Hotkey labels (shown after portal succeeds) */
         AdwActionRow *start_row = ADW_ACTION_ROW(adw_action_row_new());
         adw_preferences_row_set_title(ADW_PREFERENCES_ROW(start_row),
-            "Start/Stop streaming");
+            _("Start/Stop streaming"));
         adw_action_row_set_subtitle(start_row, "");
         adw_preferences_group_add(self->hotkey_group, GTK_WIDGET(start_row));
 
@@ -276,7 +277,7 @@ build_hotkey_group(GsrStreamPage *self)
         /* X11: interactive shortcut rows */
         self->x11_start_stop_row = ADW_ACTION_ROW(adw_action_row_new());
         adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->x11_start_stop_row),
-            "Start/Stop streaming");
+            _("Start/Stop streaming"));
         gtk_list_box_row_set_activatable(GTK_LIST_BOX_ROW(self->x11_start_stop_row), TRUE);
 
         self->x11_start_stop_label = GTK_SHORTCUT_LABEL(
@@ -304,14 +305,14 @@ static void
 build_service_group(GsrStreamPage *self)
 {
     self->service_group = ADW_PREFERENCES_GROUP(adw_preferences_group_new());
-    adw_preferences_group_set_title(self->service_group, "Streaming Service");
+    adw_preferences_group_set_title(self->service_group, _("Streaming Service"));
 
     /* Service selector */
     self->service_row = ADW_COMBO_ROW(adw_combo_row_new());
     adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->service_row),
-        "Service");
+        _("Service"));
     GtkStringList *svc_model = gtk_string_list_new(
-        (const char *const[]){ "Twitch", "YouTube", "Custom", NULL });
+        (const char *const[]){ _("Twitch"), _("YouTube"), _("Custom"), NULL });
     adw_combo_row_set_model(self->service_row, G_LIST_MODEL(svc_model));
     adw_combo_row_set_selected(self->service_row, 0);
     g_signal_connect(self->service_row, "notify::selected",
@@ -322,14 +323,14 @@ build_service_group(GsrStreamPage *self)
     /* Twitch stream key */
     self->twitch_key_row = ADW_PASSWORD_ENTRY_ROW(adw_password_entry_row_new());
     adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->twitch_key_row),
-        "Stream key");
+        _("Stream key"));
     adw_preferences_group_add(self->service_group,
         GTK_WIDGET(self->twitch_key_row));
 
     /* YouTube stream key */
     self->youtube_key_row = ADW_PASSWORD_ENTRY_ROW(adw_password_entry_row_new());
     adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->youtube_key_row),
-        "Stream key");
+        _("Stream key"));
     gtk_widget_set_visible(GTK_WIDGET(self->youtube_key_row), FALSE);
     adw_preferences_group_add(self->service_group,
         GTK_WIDGET(self->youtube_key_row));
@@ -337,7 +338,7 @@ build_service_group(GsrStreamPage *self)
     /* Custom URL */
     self->custom_url_row = ADW_PASSWORD_ENTRY_ROW(adw_password_entry_row_new());
     adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->custom_url_row),
-        "URL");
+        _("URL"));
     gtk_widget_set_visible(GTK_WIDGET(self->custom_url_row), FALSE);
     adw_preferences_group_add(self->service_group,
         GTK_WIDGET(self->custom_url_row));
@@ -345,7 +346,7 @@ build_service_group(GsrStreamPage *self)
     /* Container (custom service only) */
     self->container_row = ADW_COMBO_ROW(adw_combo_row_new());
     adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->container_row),
-        "Container");
+        _("Container"));
 
     GtkStringList *ct_model = gtk_string_list_new(NULL);
     const char *containers[] = {
@@ -379,7 +380,7 @@ build_action_group(GsrStreamPage *self)
     gtk_widget_set_margin_top(GTK_WIDGET(box), 6);
     gtk_widget_set_margin_bottom(GTK_WIDGET(box), 6);
 
-    self->start_button = GTK_BUTTON(gtk_button_new_with_label("Start streaming"));
+    self->start_button = GTK_BUTTON(gtk_button_new_with_label(_("Start streaming")));
     gtk_widget_set_hexpand(GTK_WIDGET(self->start_button), TRUE);
     gtk_widget_add_css_class(GTK_WIDGET(self->start_button), "suggested-action");
     g_signal_connect(self->start_button, "clicked",
@@ -446,7 +447,7 @@ gsr_stream_page_new(const GsrInfo *info)
     GsrStreamPage *self = g_object_new(GSR_TYPE_STREAM_PAGE, NULL);
     self->info = info;
 
-    adw_preferences_page_set_title(ADW_PREFERENCES_PAGE(self), "Stream");
+    adw_preferences_page_set_title(ADW_PREFERENCES_PAGE(self), _("Stream"));
     adw_preferences_page_set_icon_name(ADW_PREFERENCES_PAGE(self),
         "network-transmit-symbolic");
 
@@ -594,13 +595,13 @@ void
 gsr_stream_page_set_active(GsrStreamPage *self, gboolean active)
 {
     if (active) {
-        gtk_button_set_label(self->start_button, "Stop streaming");
+        gtk_button_set_label(self->start_button, _("Stop streaming"));
         gtk_widget_remove_css_class(GTK_WIDGET(self->start_button), "suggested-action");
         gtk_widget_add_css_class(GTK_WIDGET(self->start_button), "destructive-action");
         gtk_widget_set_opacity(GTK_WIDGET(self->status_box), 1.0);
         gtk_widget_add_css_class(GTK_WIDGET(self->record_icon), "recording-active");
     } else {
-        gtk_button_set_label(self->start_button, "Start streaming");
+        gtk_button_set_label(self->start_button, _("Start streaming"));
         gtk_widget_remove_css_class(GTK_WIDGET(self->start_button), "destructive-action");
         gtk_widget_add_css_class(GTK_WIDGET(self->start_button), "suggested-action");
         gtk_widget_set_opacity(GTK_WIDGET(self->status_box), 0.5);

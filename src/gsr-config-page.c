@@ -3,6 +3,8 @@
 #include "gsr-x11-window-picker.h"
 #endif
 
+#include <glib/gi18n.h>
+
 /* ═══════════════════════════════════════════════════════════════════
  *  GsrConfigPage — "Config" tab
  *
@@ -157,7 +159,7 @@ on_window_picked(const GsrX11WindowPickResult *result, void *userdata)
 
     /* Update the row subtitle */
     g_autofree char *subtitle = g_strdup_printf("%s (0x%lx)",
-        result->name ? result->name : "(no name)",
+        result->name ? result->name : _("(no name)"),
         (unsigned long)result->window);
     adw_action_row_set_subtitle(self->select_window_row, subtitle);
 }
@@ -180,7 +182,7 @@ on_select_window_activated(AdwActionRow *row G_GNUC_UNUSED, gpointer user_data)
     self->active_picker = gsr_x11_window_picker_new(on_window_picked, self);
     if (!self->active_picker) {
         adw_action_row_set_subtitle(self->select_window_row,
-            "Failed to grab pointer");
+            _("Failed to grab pointer"));
     }
 }
 #endif /* HAVE_X11 */
@@ -189,7 +191,7 @@ static void
 build_capture_group(GsrConfigPage *self)
 {
     self->capture_group = ADW_PREFERENCES_GROUP(adw_preferences_group_new());
-    adw_preferences_group_set_title(self->capture_group, "Capture Target");
+    adw_preferences_group_set_title(self->capture_group, _("Capture Target"));
 
     /* Record area combo */
     self->record_area_model = gtk_string_list_new(NULL);
@@ -202,13 +204,13 @@ build_capture_group(GsrConfigPage *self)
 #ifdef HAVE_X11
     /* "Window" — X11 only */
     if (info->system_info.display_server == GSR_DISPLAY_SERVER_X11) {
-        gtk_string_list_append(self->record_area_model, "Window");
+        gtk_string_list_append(self->record_area_model, _("Window"));
         ids_array_append(&self->record_area_ids, &self->n_record_area_ids, &cap, "window");
     }
 
     /* "Follow focused window" — X11 only */
     if (info->system_info.display_server == GSR_DISPLAY_SERVER_X11) {
-        gtk_string_list_append(self->record_area_model, "Focused window");
+        gtk_string_list_append(self->record_area_model, _("Focused window"));
         ids_array_append(&self->record_area_ids, &self->n_record_area_ids, &cap, "focused");
     }
 #endif
@@ -219,9 +221,9 @@ build_capture_group(GsrConfigPage *self)
         const GsrMonitor *m = &info->supported_capture_options.monitors[i];
         g_autofree char *label = NULL;
         if (m->width > 0 && m->height > 0)
-            label = g_strdup_printf("Monitor %s (%dx%d)", m->name, m->width, m->height);
+            label = g_strdup_printf(_("Monitor %s (%dx%d)"), m->name, m->width, m->height);
         else
-            label = g_strdup_printf("Monitor %s", m->name);
+            label = g_strdup_printf(_("Monitor %s"), m->name);
         gtk_string_list_append(self->record_area_model, label);
         ids_array_append(&self->record_area_ids, &self->n_record_area_ids, &cap, m->name);
     }
@@ -229,12 +231,12 @@ build_capture_group(GsrConfigPage *self)
     /* Desktop portal — only on Wayland with portal support */
     if (info->system_info.display_server == GSR_DISPLAY_SERVER_WAYLAND
         && info->supported_capture_options.portal) {
-        gtk_string_list_append(self->record_area_model, "Desktop portal (no HDR)");
+        gtk_string_list_append(self->record_area_model, _("Desktop portal (no HDR)"));
         ids_array_append(&self->record_area_ids, &self->n_record_area_ids, &cap, "portal");
     }
 
     self->record_area_row = ADW_COMBO_ROW(adw_combo_row_new());
-    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->record_area_row), "Record area");
+    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->record_area_row), _("Record area"));
 
     /* Default selection: first monitor if available, else first entry */
     guint default_idx = (info->supported_capture_options.n_monitors > 0)
@@ -254,8 +256,8 @@ build_capture_group(GsrConfigPage *self)
 #ifdef HAVE_X11
     self->select_window_row = ADW_ACTION_ROW(adw_action_row_new());
     adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->select_window_row),
-        "Select window...");
-    adw_action_row_set_subtitle(self->select_window_row, "Click to pick a window");
+        _("Select window..."));
+    adw_action_row_set_subtitle(self->select_window_row, _("Click to pick a window"));
     gtk_list_box_row_set_activatable(GTK_LIST_BOX_ROW(self->select_window_row), TRUE);
     GtkImage *pick_icon = GTK_IMAGE(gtk_image_new_from_icon_name("find-location-symbolic"));
     adw_action_row_add_suffix(self->select_window_row, GTK_WIDGET(pick_icon));
@@ -271,7 +273,7 @@ build_capture_group(GsrConfigPage *self)
     /* Change video resolution */
     self->change_resolution_row = ADW_SWITCH_ROW(adw_switch_row_new());
     adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->change_resolution_row),
-        "Change video resolution");
+        _("Change video resolution"));
     adw_switch_row_set_active(self->change_resolution_row, FALSE);
     g_signal_connect(self->change_resolution_row, "notify::active",
         G_CALLBACK(on_change_resolution_toggled), self);
@@ -279,26 +281,26 @@ build_capture_group(GsrConfigPage *self)
 
     /* Video resolution W×H */
     self->video_width_row = ADW_SPIN_ROW(adw_spin_row_new_with_range(5, 10000, 1));
-    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->video_width_row), "Video width");
+    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->video_width_row), _("Video width"));
     adw_spin_row_set_value(self->video_width_row, 1920);
     gtk_widget_set_visible(GTK_WIDGET(self->video_width_row), FALSE);
     adw_preferences_group_add(self->capture_group, GTK_WIDGET(self->video_width_row));
 
     self->video_height_row = ADW_SPIN_ROW(adw_spin_row_new_with_range(5, 10000, 1));
-    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->video_height_row), "Video height");
+    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->video_height_row), _("Video height"));
     adw_spin_row_set_value(self->video_height_row, 1080);
     gtk_widget_set_visible(GTK_WIDGET(self->video_height_row), FALSE);
     adw_preferences_group_add(self->capture_group, GTK_WIDGET(self->video_height_row));
 
     /* Area size W×H (focused mode) */
     self->area_width_row = ADW_SPIN_ROW(adw_spin_row_new_with_range(5, 10000, 1));
-    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->area_width_row), "Area width");
+    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->area_width_row), _("Area width"));
     adw_spin_row_set_value(self->area_width_row, 1920);
     gtk_widget_set_visible(GTK_WIDGET(self->area_width_row), FALSE);
     adw_preferences_group_add(self->capture_group, GTK_WIDGET(self->area_width_row));
 
     self->area_height_row = ADW_SPIN_ROW(adw_spin_row_new_with_range(5, 10000, 1));
-    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->area_height_row), "Area height");
+    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->area_height_row), _("Area height"));
     adw_spin_row_set_value(self->area_height_row, 1080);
     gtk_widget_set_visible(GTK_WIDGET(self->area_height_row), FALSE);
     adw_preferences_group_add(self->capture_group, GTK_WIDGET(self->area_height_row));
@@ -306,7 +308,7 @@ build_capture_group(GsrConfigPage *self)
     /* Restore portal session */
     self->restore_portal_row = ADW_SWITCH_ROW(adw_switch_row_new());
     adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->restore_portal_row),
-        "Restore portal session");
+        _("Restore portal session"));
     adw_switch_row_set_active(self->restore_portal_row, TRUE);
     gtk_widget_set_visible(GTK_WIDGET(self->restore_portal_row), FALSE);
     adw_preferences_group_add(self->capture_group, GTK_WIDGET(self->restore_portal_row));
@@ -324,7 +326,7 @@ static void
 build_audio_group(GsrConfigPage *self)
 {
     self->audio_group = ADW_PREFERENCES_GROUP(adw_preferences_group_new());
-    adw_preferences_group_set_title(self->audio_group, "Audio");
+    adw_preferences_group_set_title(self->audio_group, _("Audio"));
 
     /* Button row for adding audio tracks */
     GtkBox *btn_box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6));
@@ -334,7 +336,7 @@ build_audio_group(GsrConfigPage *self)
     self->add_device_btn = GTK_BUTTON(gtk_button_new());
     AdwButtonContent *dev_bc = ADW_BUTTON_CONTENT(adw_button_content_new());
     adw_button_content_set_icon_name(dev_bc, "list-add-symbolic");
-    adw_button_content_set_label(dev_bc, "Audio device");
+    adw_button_content_set_label(dev_bc, _("Audio device"));
     gtk_button_set_child(self->add_device_btn, GTK_WIDGET(dev_bc));
     gtk_widget_add_css_class(GTK_WIDGET(self->add_device_btn), "flat");
     g_signal_connect(self->add_device_btn, "clicked",
@@ -344,7 +346,7 @@ build_audio_group(GsrConfigPage *self)
     self->add_app_btn = GTK_BUTTON(gtk_button_new());
     AdwButtonContent *app_bc = ADW_BUTTON_CONTENT(adw_button_content_new());
     adw_button_content_set_icon_name(app_bc, "list-add-symbolic");
-    adw_button_content_set_label(app_bc, "App audio");
+    adw_button_content_set_label(app_bc, _("App audio"));
     gtk_button_set_child(self->add_app_btn, GTK_WIDGET(app_bc));
     gtk_widget_add_css_class(GTK_WIDGET(self->add_app_btn), "flat");
     g_signal_connect(self->add_app_btn, "clicked",
@@ -354,7 +356,7 @@ build_audio_group(GsrConfigPage *self)
     self->add_custom_app_btn = GTK_BUTTON(gtk_button_new());
     AdwButtonContent *custom_bc = ADW_BUTTON_CONTENT(adw_button_content_new());
     adw_button_content_set_icon_name(custom_bc, "list-add-symbolic");
-    adw_button_content_set_label(custom_bc, "Custom app");
+    adw_button_content_set_label(custom_bc, _("Custom app"));
     gtk_button_set_child(self->add_custom_app_btn, GTK_WIDGET(custom_bc));
     gtk_widget_add_css_class(GTK_WIDGET(self->add_custom_app_btn), "flat");
     g_signal_connect(self->add_custom_app_btn, "clicked",
@@ -379,7 +381,7 @@ build_audio_group(GsrConfigPage *self)
     /* Split audio */
     self->split_audio_row = ADW_SWITCH_ROW(adw_switch_row_new());
     adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->split_audio_row),
-        "Split audio tracks");
+        _("Split audio tracks"));
     adw_switch_row_set_active(self->split_audio_row, FALSE);
     gtk_widget_set_visible(GTK_WIDGET(self->split_audio_row), FALSE); /* advanced only */
     adw_preferences_group_add(self->audio_group, GTK_WIDGET(self->split_audio_row));
@@ -387,7 +389,7 @@ build_audio_group(GsrConfigPage *self)
     /* Record app audio inverted */
     self->app_audio_inverted_row = ADW_SWITCH_ROW(adw_switch_row_new());
     adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->app_audio_inverted_row),
-        "Record all apps except selected");
+        _("Record all apps except selected"));
     adw_switch_row_set_active(self->app_audio_inverted_row, FALSE);
     if (!self->info->system_info.supports_app_audio)
         gtk_widget_set_visible(GTK_WIDGET(self->app_audio_inverted_row), FALSE);
@@ -395,9 +397,9 @@ build_audio_group(GsrConfigPage *self)
 
     /* Audio codec */
     self->audio_codec_row = ADW_COMBO_ROW(adw_combo_row_new());
-    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->audio_codec_row), "Audio codec");
+    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->audio_codec_row), _("Audio codec"));
     GtkStringList *ac_model = gtk_string_list_new(
-        (const char *const[]){ "Opus (Recommended)", "AAC", NULL });
+        (const char *const[]){ _("Opus (Recommended)"), _("AAC"), NULL });
     adw_combo_row_set_model(self->audio_codec_row, G_LIST_MODEL(ac_model));
     adw_combo_row_set_selected(self->audio_codec_row, 0);
     gtk_widget_set_visible(GTK_WIDGET(self->audio_codec_row), FALSE); /* advanced only */
@@ -491,7 +493,7 @@ on_add_audio_device_clicked(GtkButton *btn G_GNUC_UNUSED, gpointer user_data)
     for (int i = 0; i < n_devs; i++)
         labels[i] = devs[i].description;
 
-    GtkWidget *row = create_audio_row("device", "Device", labels, n_devs,
+    GtkWidget *row = create_audio_row("device", _("Device"), labels, n_devs,
                                       NULL, self);
     gtk_list_box_append(self->audio_rows_box, row);
     update_audio_rows_visibility(self);
@@ -514,7 +516,7 @@ on_add_app_audio_clicked(GtkButton *btn G_GNUC_UNUSED, gpointer user_data)
     int n_apps = 0;
     char **apps = gsr_application_audio_get(&n_apps);
 
-    GtkWidget *row = create_audio_row("app", "Application",
+    GtkWidget *row = create_audio_row("app", _("Application"),
                                       (const char *const *)apps, n_apps,
                                       NULL, self);
     gtk_list_box_append(self->audio_rows_box, row);
@@ -526,7 +528,7 @@ static void
 on_add_custom_app_clicked(GtkButton *btn G_GNUC_UNUSED, gpointer user_data)
 {
     GsrConfigPage *self = GSR_CONFIG_PAGE(user_data);
-    GtkWidget *row = create_audio_row("app-custom", "Application",
+    GtkWidget *row = create_audio_row("app-custom", _("Application"),
                                       NULL, 0, "", self);
     gtk_list_box_append(self->audio_rows_box, row);
     update_audio_rows_visibility(self);
@@ -547,18 +549,18 @@ static void
 build_video_group(GsrConfigPage *self)
 {
     self->video_group = ADW_PREFERENCES_GROUP(adw_preferences_group_new());
-    adw_preferences_group_set_title(self->video_group, "Video");
+    adw_preferences_group_set_title(self->video_group, _("Video"));
 
     const GsrInfo *info = self->info;
 
     /* Quality */
     self->quality_row = ADW_COMBO_ROW(adw_combo_row_new());
-    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->quality_row), "Video quality");
+    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->quality_row), _("Video quality"));
     GtkStringList *q_model = gtk_string_list_new((const char *const[]){
-        "Constant bitrate",
-        "Medium", "High",
-        "Very High",
-        "Ultra", NULL });
+        _("Constant bitrate"),
+        _("Medium"), _("High"),
+        _("Very High"),
+        _("Ultra"), NULL });
     adw_combo_row_set_model(self->quality_row, G_LIST_MODEL(q_model));
     adw_combo_row_set_selected(self->quality_row, 0);
     g_signal_connect(self->quality_row, "notify::selected",
@@ -567,7 +569,7 @@ build_video_group(GsrConfigPage *self)
 
     /* Bitrate */
     self->bitrate_row = ADW_SPIN_ROW(adw_spin_row_new_with_range(1, 500000, 1));
-    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->bitrate_row), "Video bitrate (kbps)");
+    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->bitrate_row), _("Video bitrate (kbps)"));
     adw_spin_row_set_value(self->bitrate_row, 15000);
     adw_preferences_group_add(self->video_group, GTK_WIDGET(self->bitrate_row));
 
@@ -578,29 +580,29 @@ build_video_group(GsrConfigPage *self)
     int vc_cap = 0;
 
     struct { const char *id; const char *label_ok; const char *label_na; } codecs[] = {
-        { "auto",          "Auto", NULL },
-        { "h264",          "H.264",
-                           "H.264 (N/A)" },
-        { "hevc",          "HEVC",
-                           "HEVC (N/A)" },
-        { "hevc_10bit",    "HEVC 10-bit",
-                           "HEVC 10-bit (N/A)" },
+        { "auto",          _("Auto"), NULL },
+        { "h264",          _("H.264"),
+                           _("H.264 (N/A)") },
+        { "hevc",          _("HEVC"),
+                           _("HEVC (N/A)") },
+        { "hevc_10bit",    _("HEVC 10-bit"),
+                           _("HEVC 10-bit (N/A)") },
         { "hevc_hdr",
             info->system_info.display_server == GSR_DISPLAY_SERVER_WAYLAND
-                ? "HEVC HDR" : "HEVC HDR (X11 N/A)",
-            "HEVC HDR (N/A)" },
-        { "av1",           "AV1",
-                           "AV1 (N/A)" },
-        { "av1_10bit",     "AV1 10-bit",
-                           "AV1 10-bit (N/A)" },
+                ? _("HEVC HDR") : _("HEVC HDR (X11 N/A)"),
+            _("HEVC HDR (N/A)") },
+        { "av1",           _("AV1"),
+                           _("AV1 (N/A)") },
+        { "av1_10bit",     _("AV1 10-bit"),
+                           _("AV1 10-bit (N/A)") },
         { "av1_hdr",
             info->system_info.display_server == GSR_DISPLAY_SERVER_WAYLAND
-                ? "AV1 HDR" : "AV1 HDR (X11 N/A)",
-            "AV1 HDR (N/A)" },
-        { "vp8",           "VP8",  "VP8 (N/A)" },
-        { "vp9",           "VP9",  "VP9 (N/A)" },
-        { "h264_software", "H.264 Software (slow)",
-                           "H.264 Software (N/A)" },
+                ? _("AV1 HDR") : _("AV1 HDR (X11 N/A)"),
+            _("AV1 HDR (N/A)") },
+        { "vp8",           _("VP8"),  _("VP8 (N/A)") },
+        { "vp9",           _("VP9"),  _("VP9 (N/A)") },
+        { "h264_software", _("H.264 Software (slow)"),
+                           _("H.264 Software (N/A)") },
     };
 
     for (size_t i = 0; i < G_N_ELEMENTS(codecs); i++) {
@@ -611,7 +613,7 @@ build_video_group(GsrConfigPage *self)
     }
 
     self->video_codec_row = ADW_COMBO_ROW(adw_combo_row_new());
-    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->video_codec_row), "Video codec");
+    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->video_codec_row), _("Video codec"));
     adw_combo_row_set_model(self->video_codec_row, G_LIST_MODEL(self->video_codec_model));
     adw_combo_row_set_selected(self->video_codec_row, 0);
     gtk_widget_set_visible(GTK_WIDGET(self->video_codec_row), FALSE); /* advanced only */
@@ -619,9 +621,9 @@ build_video_group(GsrConfigPage *self)
 
     /* Color range */
     self->color_range_row = ADW_COMBO_ROW(adw_combo_row_new());
-    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->color_range_row), "Color range");
+    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->color_range_row), _("Color range"));
     GtkStringList *cr_model = gtk_string_list_new(
-        (const char *const[]){ "Limited", "Full", NULL });
+        (const char *const[]){ _("Limited"), _("Full"), NULL });
     adw_combo_row_set_model(self->color_range_row, G_LIST_MODEL(cr_model));
     adw_combo_row_set_selected(self->color_range_row, 0);
     gtk_widget_set_visible(GTK_WIDGET(self->color_range_row), FALSE); /* advanced only */
@@ -629,15 +631,15 @@ build_video_group(GsrConfigPage *self)
 
     /* FPS */
     self->fps_row = ADW_SPIN_ROW(adw_spin_row_new_with_range(1, 500, 1));
-    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->fps_row), "Frame rate");
+    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->fps_row), _("Frame rate"));
     adw_spin_row_set_value(self->fps_row, 60);
     adw_preferences_group_add(self->video_group, GTK_WIDGET(self->fps_row));
 
     /* Framerate mode */
     self->framerate_mode_row = ADW_COMBO_ROW(adw_combo_row_new());
-    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->framerate_mode_row), "Frame rate mode");
+    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->framerate_mode_row), _("Frame rate mode"));
     GtkStringList *fm_model = gtk_string_list_new(
-        (const char *const[]){ "Auto (Recommended)", "Constant", "Variable", NULL });
+        (const char *const[]){ _("Auto (Recommended)"), _("Constant"), _("Variable"), NULL });
     adw_combo_row_set_model(self->framerate_mode_row, G_LIST_MODEL(fm_model));
     adw_combo_row_set_selected(self->framerate_mode_row, 0);
     gtk_widget_set_visible(GTK_WIDGET(self->framerate_mode_row), FALSE); /* advanced only */
@@ -646,7 +648,7 @@ build_video_group(GsrConfigPage *self)
     /* Overclock (NVIDIA + X11 only) */
     self->overclock_row = ADW_SWITCH_ROW(adw_switch_row_new());
     adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->overclock_row),
-        "Overclock memory transfer rate");
+        _("Overclock memory transfer rate"));
     adw_switch_row_set_active(self->overclock_row, FALSE);
     /* Only visible in advanced mode AND nvidia AND not wayland */
     gtk_widget_set_visible(GTK_WIDGET(self->overclock_row), FALSE);
@@ -654,7 +656,7 @@ build_video_group(GsrConfigPage *self)
 
     /* Record cursor */
     self->record_cursor_row = ADW_SWITCH_ROW(adw_switch_row_new());
-    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->record_cursor_row), "Record cursor");
+    adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->record_cursor_row), _("Record cursor"));
     adw_switch_row_set_active(self->record_cursor_row, TRUE);
     adw_preferences_group_add(self->video_group, GTK_WIDGET(self->record_cursor_row));
 
@@ -667,24 +669,24 @@ static void
 build_notifications_group(GsrConfigPage *self)
 {
     self->notifications_group = ADW_PREFERENCES_GROUP(adw_preferences_group_new());
-    adw_preferences_group_set_title(self->notifications_group, "Notifications");
+    adw_preferences_group_set_title(self->notifications_group, _("Notifications"));
     gtk_widget_set_visible(GTK_WIDGET(self->notifications_group), FALSE); /* advanced only */
 
     self->notify_started_row = ADW_SWITCH_ROW(adw_switch_row_new());
     adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->notify_started_row),
-        "Show started notification");
+        _("Show started notification"));
     adw_switch_row_set_active(self->notify_started_row, FALSE);
     adw_preferences_group_add(self->notifications_group, GTK_WIDGET(self->notify_started_row));
 
     self->notify_stopped_row = ADW_SWITCH_ROW(adw_switch_row_new());
     adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->notify_stopped_row),
-        "Show stopped notification");
+        _("Show stopped notification"));
     adw_switch_row_set_active(self->notify_stopped_row, FALSE);
     adw_preferences_group_add(self->notifications_group, GTK_WIDGET(self->notify_stopped_row));
 
     self->notify_saved_row = ADW_SWITCH_ROW(adw_switch_row_new());
     adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->notify_saved_row),
-        "Show video saved notification");
+        _("Show video saved notification"));
     adw_switch_row_set_active(self->notify_saved_row, TRUE);
     adw_preferences_group_add(self->notifications_group, GTK_WIDGET(self->notify_saved_row));
 
@@ -735,7 +737,7 @@ gsr_config_page_new(const GsrInfo *info)
     GsrConfigPage *self = g_object_new(GSR_TYPE_CONFIG_PAGE, NULL);
     self->info = info;
 
-    adw_preferences_page_set_title(ADW_PREFERENCES_PAGE(self), "Config");
+    adw_preferences_page_set_title(ADW_PREFERENCES_PAGE(self), _("Config"));
     adw_preferences_page_set_icon_name(ADW_PREFERENCES_PAGE(self),
         "preferences-system-symbolic");
 
@@ -924,11 +926,11 @@ gsr_config_page_apply_config(GsrConfigPage *self, const GsrConfig *config)
             }
 
             if (found) {
-                GtkWidget *row = create_audio_row("app", "Application",
+                GtkWidget *row = create_audio_row("app", _("Application"),
                     (const char *const *)apps, n_apps, app_name, self);
                 gtk_list_box_append(self->audio_rows_box, row);
             } else {
-                GtkWidget *row = create_audio_row("app-custom", "Application",
+                GtkWidget *row = create_audio_row("app-custom", _("Application"),
                     NULL, 0, app_name, self);
                 gtk_list_box_append(self->audio_rows_box, row);
             }
@@ -949,7 +951,7 @@ gsr_config_page_apply_config(GsrConfigPage *self, const GsrConfig *config)
             for (int j = 0; j < n_devs; j++)
                 labels[j] = devs[j].description;
 
-            GtkWidget *row = create_audio_row("device", "Device",
+            GtkWidget *row = create_audio_row("device", _("Device"),
                 labels, n_devs, desc, self);
             gtk_list_box_append(self->audio_rows_box, row);
 

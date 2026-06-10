@@ -10,6 +10,10 @@ elif get_option('buildtype') == 'release'
     add_project_arguments('-DNDEBUG', language : 'c')
 endif
 
+i18n = import('i18n')
+gettext_package = meson.project_name()
+localedir = join_paths(get_option('prefix'), get_option('datadir'), 'locale')
+
 src = [
     'src/main.c',
     'src/gsr-window.c',
@@ -29,6 +33,8 @@ dep = [
 c_args = [
     '-DGSR_ICONS_PATH="' + join_paths(get_option('prefix'), get_option('datadir'), 'icons') + '"',
     '-DGSR_VERSION="' + meson.project_version() + '"',
+    '-DGETTEXT_PACKAGE="' + gettext_package + '"',
+    '-DGSR_LOCALEDIR="' + localedir + '"',
 ]
 
 if get_option('x11')
@@ -56,12 +62,22 @@ executable('gpu-screen-recorder-adw',
     c_args : c_args,
 )
 
-install_data(
-    files('com.dec05eba.gpu_screen_recorder.desktop'),
+subdir('po')
+
+i18n.merge_file(
+    input : 'com.dec05eba.gpu_screen_recorder.desktop.in',
+    output : 'com.dec05eba.gpu_screen_recorder.desktop',
+    type : 'desktop',
+    po_dir : 'po',
+    install : true,
     install_dir : join_paths(get_option('prefix'), get_option('datadir'), 'applications'),
 )
-install_data(
-    files('com.dec05eba.gpu_screen_recorder.metainfo.xml'),
+i18n.merge_file(
+    input : 'com.dec05eba.gpu_screen_recorder.metainfo.xml.in',
+    output : 'com.dec05eba.gpu_screen_recorder.metainfo.xml',
+    type : 'xml',
+    po_dir : 'po',
+    install : true,
     install_dir : join_paths(get_option('prefix'), get_option('datadir'), 'metainfo'),
 )
 install_subdir('icons/hicolor', install_dir : join_paths(get_option('prefix'), get_option('datadir'), 'icons'))

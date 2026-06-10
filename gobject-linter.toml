@@ -18,10 +18,10 @@ default_level = "error"
 [rules.type_style]
 level = "ignore"
 
-# The application is not yet internationalized (no gettext domain). Re-enable
-# once translation infrastructure is in place.
+# The application is internationalized via gettext (see po/). Enforce that every
+# user-visible string is wrapped with _() so new strings stay translatable.
 [rules.untranslated_string]
-level = "ignore"
+level = "error"
 
 # Advisory only: this rule mis-fires on floating GVariant references (consumed by
 # g_variant_new_tuple/builders) and on objects intentionally kept alive past the

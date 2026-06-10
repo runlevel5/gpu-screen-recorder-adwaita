@@ -3,6 +3,8 @@
 #include <signal.h>
 #include <time.h>
 
+#include <glib/gi18n.h>
+
 #include "gsr-window.h"
 
 #ifdef HAVE_X11
@@ -125,7 +127,7 @@ on_save_dir_activated(AdwActionRow *row G_GNUC_UNUSED,
 {
     GsrReplayPage *self = GSR_REPLAY_PAGE(user_data);
     g_autoptr(GtkFileDialog) dialog = gtk_file_dialog_new();
-    gtk_file_dialog_set_title(dialog, "Select save directory");
+    gtk_file_dialog_set_title(dialog, _("Select save directory"));
 
     if (self->save_directory) {
         g_autoptr(GFile) initial = g_file_new_for_path(self->save_directory);
@@ -227,7 +229,7 @@ on_x11_start_stop_activated(AdwActionRow *row G_GNUC_UNUSED,
 {
     GsrReplayPage *self = GSR_REPLAY_PAGE(user_data);
     GsrShortcutAccelDialog *dialog = gsr_shortcut_accel_dialog_new(
-        "Start/Stop replay", self->x11_start_stop_accel);
+        _("Start/Stop replay"), self->x11_start_stop_accel);
     g_signal_connect(dialog, "shortcut-set",
         G_CALLBACK(on_x11_start_stop_shortcut_set), self);
     adw_dialog_present(ADW_DIALOG(dialog), GTK_WIDGET(self));
@@ -257,7 +259,7 @@ on_x11_save_activated(AdwActionRow *row G_GNUC_UNUSED,
 {
     GsrReplayPage *self = GSR_REPLAY_PAGE(user_data);
     GsrShortcutAccelDialog *dialog = gsr_shortcut_accel_dialog_new(
-        "Save replay", self->x11_save_accel);
+        _("Save replay"), self->x11_save_accel);
     g_signal_connect(dialog, "shortcut-set",
         G_CALLBACK(on_x11_save_shortcut_set), self);
     adw_dialog_present(ADW_DIALOG(dialog), GTK_WIDGET(self));
@@ -268,7 +270,7 @@ static void
 build_hotkey_group(GsrReplayPage *self)
 {
     self->hotkey_group = ADW_PREFERENCES_GROUP(adw_preferences_group_new());
-    adw_preferences_group_set_title(self->hotkey_group, "Hotkeys");
+    adw_preferences_group_set_title(self->hotkey_group, _("Hotkeys"));
 
     GsrDisplayServer ds = self->info->system_info.display_server;
 
@@ -276,8 +278,8 @@ build_hotkey_group(GsrReplayPage *self)
     if (ds == GSR_DISPLAY_SERVER_WAYLAND) {
         /* "Not supported" label — initially hidden, shown if portal fails */
         self->hotkey_not_supported_label = gtk_label_new(
-            "Your Wayland compositor doesn't support global hotkeys.\n"
-            "Use X11 or KDE Plasma on Wayland if you want to use hotkeys.");
+            _("Your Wayland compositor doesn't support global hotkeys.\n"
+            "Use X11 or KDE Plasma on Wayland if you want to use hotkeys."));
         gtk_label_set_wrap(GTK_LABEL(self->hotkey_not_supported_label), TRUE);
         gtk_widget_add_css_class(self->hotkey_not_supported_label, "dim-label");
         gtk_widget_set_margin_top(self->hotkey_not_supported_label, 6);
@@ -291,32 +293,32 @@ build_hotkey_group(GsrReplayPage *self)
         self->hotkey_info_row = GTK_WIDGET(info_row);
         if (is_kde_wayland()) {
             adw_preferences_row_set_title(ADW_PREFERENCES_ROW(info_row),
-                "Hotkeys are managed by KDE Plasma");
+                _("Hotkeys are managed by KDE Plasma"));
             adw_action_row_set_subtitle(info_row,
-                "Click to configure hotkeys in system settings");
+                _("Click to configure hotkeys in system settings"));
             GtkButton *change_btn = GTK_BUTTON(
-                gtk_button_new_with_label("Change hotkeys"));
+                gtk_button_new_with_label(_("Change hotkeys")));
             gtk_widget_set_valign(GTK_WIDGET(change_btn), GTK_ALIGN_CENTER);
             g_object_set_data(G_OBJECT(info_row), "change-button", change_btn);
             adw_action_row_add_suffix(info_row, GTK_WIDGET(change_btn));
         } else {
             adw_preferences_row_set_title(ADW_PREFERENCES_ROW(info_row),
-                "Hotkeys are managed by your compositor");
+                _("Hotkeys are managed by your compositor"));
             adw_action_row_set_subtitle(info_row,
-                "Go to system settings to change hotkeys");
+                _("Go to system settings to change hotkeys"));
         }
         adw_preferences_group_add(self->hotkey_group, GTK_WIDGET(info_row));
 
         /* Hotkey labels (shown after portal succeeds) */
         AdwActionRow *start_row = ADW_ACTION_ROW(adw_action_row_new());
         adw_preferences_row_set_title(ADW_PREFERENCES_ROW(start_row),
-            "Start/Stop replay");
+            _("Start/Stop replay"));
         adw_action_row_set_subtitle(start_row, "");
         adw_preferences_group_add(self->hotkey_group, GTK_WIDGET(start_row));
 
         AdwActionRow *save_row = ADW_ACTION_ROW(adw_action_row_new());
         adw_preferences_row_set_title(ADW_PREFERENCES_ROW(save_row),
-            "Save replay");
+            _("Save replay"));
         adw_action_row_set_subtitle(save_row, "");
         adw_preferences_group_add(self->hotkey_group, GTK_WIDGET(save_row));
 
@@ -332,7 +334,7 @@ build_hotkey_group(GsrReplayPage *self)
         /* X11: interactive shortcut rows */
         self->x11_start_stop_row = ADW_ACTION_ROW(adw_action_row_new());
         adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->x11_start_stop_row),
-            "Start/Stop replay");
+            _("Start/Stop replay"));
         gtk_list_box_row_set_activatable(GTK_LIST_BOX_ROW(self->x11_start_stop_row), TRUE);
 
         self->x11_start_stop_label = GTK_SHORTCUT_LABEL(
@@ -351,7 +353,7 @@ build_hotkey_group(GsrReplayPage *self)
         /* Save replay row */
         self->x11_save_row = ADW_ACTION_ROW(adw_action_row_new());
         adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->x11_save_row),
-            "Save replay");
+            _("Save replay"));
         gtk_list_box_row_set_activatable(GTK_LIST_BOX_ROW(self->x11_save_row), TRUE);
 
         self->x11_save_label = GTK_SHORTCUT_LABEL(
@@ -378,13 +380,13 @@ static void
 build_output_group(GsrReplayPage *self)
 {
     self->output_group = ADW_PREFERENCES_GROUP(adw_preferences_group_new());
-    adw_preferences_group_set_title(self->output_group, "Output");
+    adw_preferences_group_set_title(self->output_group, _("Output"));
 
     /* Save directory */
     self->save_directory = get_default_videos_dir();
     self->save_dir_row = ADW_ACTION_ROW(adw_action_row_new());
     adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->save_dir_row),
-        "Save directory");
+        _("Save directory"));
     adw_action_row_set_subtitle(self->save_dir_row, self->save_directory);
     gtk_list_box_row_set_activatable(GTK_LIST_BOX_ROW(self->save_dir_row), TRUE);
 
@@ -400,7 +402,7 @@ build_output_group(GsrReplayPage *self)
     /* Container format */
     self->container_row = ADW_COMBO_ROW(adw_combo_row_new());
     adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->container_row),
-        "Container");
+        _("Container"));
 
     GtkStringList *ct_model = gtk_string_list_new(NULL);
     const char *containers[] = {
@@ -422,7 +424,7 @@ build_output_group(GsrReplayPage *self)
     self->replay_time_row = ADW_SPIN_ROW(
         adw_spin_row_new_with_range(5, 1200, 1));
     adw_preferences_row_set_title(ADW_PREFERENCES_ROW(self->replay_time_row),
-        "Replay time (seconds)");
+        _("Replay time (seconds)"));
     adw_spin_row_set_value(self->replay_time_row, 30);
     adw_preferences_group_add(self->output_group,
         GTK_WIDGET(self->replay_time_row));
@@ -441,7 +443,7 @@ build_action_group(GsrReplayPage *self)
     gtk_widget_set_margin_bottom(GTK_WIDGET(box), 6);
 
     self->start_button = GTK_BUTTON(
-        gtk_button_new_with_label("Start replay"));
+        gtk_button_new_with_label(_("Start replay")));
     gtk_widget_set_hexpand(GTK_WIDGET(self->start_button), TRUE);
     gtk_widget_add_css_class(GTK_WIDGET(self->start_button), "suggested-action");
     g_signal_connect(self->start_button, "clicked",
@@ -449,7 +451,7 @@ build_action_group(GsrReplayPage *self)
     gtk_box_append(box, GTK_WIDGET(self->start_button));
 
     self->save_button = GTK_BUTTON(
-        gtk_button_new_with_label("Save replay"));
+        gtk_button_new_with_label(_("Save replay")));
     gtk_widget_set_hexpand(GTK_WIDGET(self->save_button), TRUE);
     gtk_widget_set_sensitive(GTK_WIDGET(self->save_button), FALSE);
     g_signal_connect(self->save_button, "clicked",
@@ -623,14 +625,14 @@ void
 gsr_replay_page_set_active(GsrReplayPage *self, gboolean active)
 {
     if (active) {
-        gtk_button_set_label(self->start_button, "Stop replay");
+        gtk_button_set_label(self->start_button, _("Stop replay"));
         gtk_widget_remove_css_class(GTK_WIDGET(self->start_button), "suggested-action");
         gtk_widget_add_css_class(GTK_WIDGET(self->start_button), "destructive-action");
         gtk_widget_set_sensitive(GTK_WIDGET(self->save_button), TRUE);
         gtk_widget_set_opacity(GTK_WIDGET(self->status_box), 1.0);
         gtk_widget_add_css_class(GTK_WIDGET(self->record_icon), "recording-active");
     } else {
-        gtk_button_set_label(self->start_button, "Start replay");
+        gtk_button_set_label(self->start_button, _("Start replay"));
         gtk_widget_remove_css_class(GTK_WIDGET(self->start_button), "destructive-action");
         gtk_widget_add_css_class(GTK_WIDGET(self->start_button), "suggested-action");
         gtk_widget_set_sensitive(GTK_WIDGET(self->save_button), FALSE);
@@ -677,7 +679,7 @@ gsr_replay_page_new(const GsrInfo *info)
     GsrReplayPage *self = g_object_new(GSR_TYPE_REPLAY_PAGE, NULL);
     self->info = info;
 
-    adw_preferences_page_set_title(ADW_PREFERENCES_PAGE(self), "Replay");
+    adw_preferences_page_set_title(ADW_PREFERENCES_PAGE(self), _("Replay"));
     adw_preferences_page_set_icon_name(ADW_PREFERENCES_PAGE(self),
         "media-playlist-repeat-symbolic");
 
