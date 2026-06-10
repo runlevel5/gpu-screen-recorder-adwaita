@@ -28,5 +28,11 @@ level = "ignore"
 # function (e.g. the GlobalShortcuts GDBusProxy). Converting those to g_autoptr
 # would over-unref and crash, so it reports rather than blocks. Convert the safe
 # g_autofree/g_autoptr sites manually over time.
+#
+# global_shortcuts.c is the D-Bus portal plumbing: every finding there is one of
+# the false positives above (floating GVariants sunk by g_variant_new_tuple,
+# GVariant* arrays, or the deliberately long-lived request proxy), so the rule is
+# excluded for that file entirely.
 [rules.use_auto_cleanup]
 level = "warn"
+ignore = ["src/global_shortcuts.c"]
