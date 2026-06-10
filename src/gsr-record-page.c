@@ -130,19 +130,17 @@ on_save_dir_activated(AdwActionRow *row G_GNUC_UNUSED,
                       gpointer      user_data)
 {
     GsrRecordPage *self = GSR_RECORD_PAGE(user_data);
-    GtkFileDialog *dialog = gtk_file_dialog_new();
+    g_autoptr(GtkFileDialog) dialog = gtk_file_dialog_new();
     gtk_file_dialog_set_title(dialog, "Select save directory");
 
     if (self->save_directory) {
-        GFile *initial = g_file_new_for_path(self->save_directory);
+        g_autoptr(GFile) initial = g_file_new_for_path(self->save_directory);
         gtk_file_dialog_set_initial_folder(dialog, initial);
-        g_object_unref(initial);
     }
 
     GtkWindow *win = GTK_WINDOW(gtk_widget_get_root(GTK_WIDGET(self)));
     gtk_file_dialog_select_folder(dialog, win, NULL,
         on_folder_dialog_finish, self);
-    g_object_unref(dialog);
 }
 
 /* ── Callbacks ───────────────────────────────────────────────────── */

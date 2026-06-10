@@ -156,11 +156,10 @@ on_window_picked(const GsrX11WindowPickResult *result, void *userdata)
     self->selected_window_name = g_strdup(result->name);
 
     /* Update the row subtitle */
-    char *subtitle = g_strdup_printf("%s (0x%lx)",
+    g_autofree char *subtitle = g_strdup_printf("%s (0x%lx)",
         result->name ? result->name : "(no name)",
         (unsigned long)result->window);
     adw_action_row_set_subtitle(self->select_window_row, subtitle);
-    g_free(subtitle);
 }
 
 static void
@@ -218,14 +217,13 @@ build_capture_group(GsrConfigPage *self)
     int first_monitor_idx = self->n_record_area_ids;
     for (int i = 0; i < info->supported_capture_options.n_monitors; i++) {
         const GsrMonitor *m = &info->supported_capture_options.monitors[i];
-        char *label;
+        g_autofree char *label = NULL;
         if (m->width > 0 && m->height > 0)
             label = g_strdup_printf("Monitor %s (%dx%d)", m->name, m->width, m->height);
         else
             label = g_strdup_printf("Monitor %s", m->name);
         gtk_string_list_append(self->record_area_model, label);
         ids_array_append(&self->record_area_ids, &self->n_record_area_ids, &cap, m->name);
-        g_free(label);
     }
 
     /* Desktop portal — only on Wayland with portal support */
@@ -901,10 +899,14 @@ gsr_config_page_apply_config(GsrConfigPage *self, const GsrConfig *config)
 
     /* Populate from config audio_input array */
     for (int i = 0; i < m->n_audio_input; i++) {
+        /* borrowed pointer into config-owned memory; nothing to free */
+        /* gobject-linter-ignore-next-line: use_auto_cleanup */
         const char *input = m->audio_input[i];
         if (!input) continue;
 
         if (g_str_has_prefix(input, "app:")) {
+            /* borrowed pointer into config-owned memory; nothing to free */
+            /* gobject-linter-ignore-next-line: use_auto_cleanup */
             const char *app_name = input + 4;
             if (!self->info->system_info.supports_app_audio)
                 continue;
@@ -934,6 +936,8 @@ gsr_config_page_apply_config(GsrConfigPage *self, const GsrConfig *config)
 
         } else {
             /* "device:xxx" or bare legacy name */
+            /* borrowed pointer into config-owned memory; nothing to free */
+            /* gobject-linter-ignore-next-line: use_auto_cleanup */
             const char *desc = input;
             if (g_str_has_prefix(input, "device:"))
                 desc = input + 7;

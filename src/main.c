@@ -121,7 +121,7 @@ on_open_folder_action(GSimpleAction *action,
 static void
 load_custom_css(void)
 {
-    GtkCssProvider *provider = gtk_css_provider_new();
+    g_autoptr(GtkCssProvider) provider = gtk_css_provider_new();
     gtk_css_provider_load_from_string(provider,
         ".recording-active { color: @error_color; }\n"
         ".recording-paused { color: @warning_color; }\n");
@@ -129,7 +129,6 @@ load_custom_css(void)
         gdk_display_get_default(),
         GTK_STYLE_PROVIDER(provider),
         GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-    g_object_unref(provider);
 }
 
 static void
@@ -155,7 +154,7 @@ on_activate(GtkApplication *app, gpointer user_data)
 int
 main(int argc, char *argv[])
 {
-    AdwApplication *app = adw_application_new(
+    g_autoptr(AdwApplication) app = adw_application_new(
         "com.dec05eba.gpu_screen_recorder",
         G_APPLICATION_DEFAULT_FLAGS);
 
@@ -175,6 +174,5 @@ main(int argc, char *argv[])
     g_signal_connect(app, "activate", G_CALLBACK(on_activate), NULL);
 
     int status = g_application_run(G_APPLICATION(app), argc, argv);
-    g_object_unref(app);
     return status;
 }
