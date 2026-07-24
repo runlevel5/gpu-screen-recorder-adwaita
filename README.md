@@ -14,6 +14,7 @@ If you still prefer to install GPU Screen Recorder with a package manager instea
 Here are some known packages:
 
 * Fedora, openSUSE TW: [COPR](https://copr.fedorainfracloud.org/coprs/brycensranch/gpu-screen-recorder-git/)
+* Debian Stable: [Sekoohaka](https://sekoohaka.ddns.net/?p=about#debian-repository)
 
 # Build from source
 ```sh
