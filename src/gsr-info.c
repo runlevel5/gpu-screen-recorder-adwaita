@@ -130,6 +130,8 @@ parse_gpu_info(ParseState *st, const char *line, size_t len)
             st->info->gpu_info.vendor = GSR_GPU_VENDOR_NVIDIA;
         else if (str_eq(val, vlen, "broadcom"))
             st->info->gpu_info.vendor = GSR_GPU_VENDOR_BROADCOM;
+        else if (str_eq(val, vlen, "apple"))
+            st->info->gpu_info.vendor = GSR_GPU_VENDOR_APPLE;
     }
 }
 

@@ -20,6 +20,7 @@ typedef enum {
     GSR_GPU_VENDOR_INTEL,
     GSR_GPU_VENDOR_NVIDIA,
     GSR_GPU_VENDOR_BROADCOM,
+    GSR_GPU_VENDOR_APPLE,
 } GsrGpuVendor;
 
 typedef enum {
