@@ -243,10 +243,7 @@ bool gsr_global_shortcuts_init(gsr_global_shortcuts *self, gsr_init_callback cal
 void gsr_global_shortcuts_deinit(gsr_global_shortcuts *self) {
     g_clear_object(&self->gdbus_con);
 
-    if(self->session_handle) {
-        free(self->session_handle);
-        self->session_handle = NULL;
-    }
+    g_clear_pointer(&self->session_handle, free);
 }
 
 bool gsr_global_shortcuts_list_shortcuts(gsr_global_shortcuts *self, gsr_shortcut_callback callback, void *userdata) {

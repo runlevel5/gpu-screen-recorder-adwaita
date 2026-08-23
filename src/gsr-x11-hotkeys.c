@@ -162,8 +162,7 @@ gsr_x11_hotkeys_free(GsrX11Hotkeys *self)
 
     if (self->source) {
         g_source_destroy(self->source);
-        g_source_unref(self->source);
-        self->source = NULL;
+        g_clear_pointer(&self->source, g_source_unref);
     }
 
     free(self);

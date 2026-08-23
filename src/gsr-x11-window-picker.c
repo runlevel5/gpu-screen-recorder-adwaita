@@ -312,8 +312,7 @@ gsr_x11_window_picker_free(GsrX11WindowPicker *self)
 
     if (self->source) {
         g_source_destroy(self->source);
-        g_source_unref(self->source);
-        self->source = NULL;
+        g_clear_pointer(&self->source, g_source_unref);
     }
 
     if (self->display) {
@@ -321,8 +320,7 @@ gsr_x11_window_picker_free(GsrX11WindowPicker *self)
         XUngrabKeyboard(self->display, CurrentTime);
         if (self->crosshair)
             XFreeCursor(self->display, self->crosshair);
-        XCloseDisplay(self->display);
-        self->display = NULL;
+        g_clear_pointer(&self->display, XCloseDisplay);
     }
 
     g_free(self);

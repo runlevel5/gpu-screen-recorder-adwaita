@@ -174,10 +174,7 @@ on_select_window_activated(AdwActionRow *row G_GNUC_UNUSED, gpointer user_data)
         return;
 
     /* Cancel any existing picker */
-    if (self->active_picker) {
-        gsr_x11_window_picker_free(self->active_picker);
-        self->active_picker = NULL;
-    }
+    g_clear_pointer(&self->active_picker, gsr_x11_window_picker_free);
 
     self->active_picker = gsr_x11_window_picker_new(on_window_picked, self);
     if (!self->active_picker) {
@@ -705,10 +702,7 @@ gsr_config_page_finalize(GObject *object)
 
     /* Window picker cleanup */
 #ifdef HAVE_X11
-    if (self->active_picker) {
-        gsr_x11_window_picker_free(self->active_picker);
-        self->active_picker = NULL;
-    }
+    g_clear_pointer(&self->active_picker, gsr_x11_window_picker_free);
     g_free(self->selected_window_name);
 #endif
 
