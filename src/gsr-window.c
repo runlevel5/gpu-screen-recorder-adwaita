@@ -104,7 +104,7 @@ active_mode_to_string(GsrActiveMode mode)
  * Withdraw the desktop notification if its timeout has elapsed.
  * Called as a one-shot GLib timeout.
  */
-static gboolean
+static void
 on_notification_withdraw(gpointer user_data)
 {
     GsrWindow *self = GSR_WINDOW(user_data);
@@ -119,8 +119,6 @@ on_notification_withdraw(gpointer user_data)
                 "gpu-screen-recorder");
         self->showing_notification = FALSE;
     }
-
-    return G_SOURCE_REMOVE; /* one-shot */
 }
 
 /**
@@ -173,7 +171,7 @@ send_notification_full(GsrWindow *self, const char *title,
     /* Auto-withdraw after timeout */
     g_clear_handle_id(&self->notification_timeout_id, g_source_remove);
     guint timeout_ms = (effective >= G_NOTIFICATION_PRIORITY_URGENT) ? 10000 : 3000;
-    self->notification_timeout_id = g_timeout_add(timeout_ms, on_notification_withdraw, self);
+    self->notification_timeout_id = g_timeout_add_once(timeout_ms, on_notification_withdraw, self);
 
     /* ── In-app toast ── */
     AdwToast *toast = adw_toast_new(body);
@@ -663,10 +661,7 @@ on_close_request(GtkWindow *window, gpointer user_data G_GNUC_UNUSED)
     g_clear_handle_id(&self->poll_timer_id, g_source_remove);
 
     /* Free hotkeys before the window is destroyed */
-    if (self->hotkeys) {
-        gsr_hotkeys_free(self->hotkeys);
-        self->hotkeys = NULL;
-    }
+    g_clear_pointer(&self->hotkeys, gsr_hotkeys_free);
 
     /* Withdraw any pending desktop notification and cancel its timer */
     g_clear_handle_id(&self->notification_timeout_id, g_source_remove);
@@ -1009,10 +1004,7 @@ gsr_window_finalize(GObject *object)
 
     g_clear_handle_id(&self->notification_timeout_id, g_source_remove);
 
-    if (self->hotkeys) {
-        gsr_hotkeys_free(self->hotkeys);
-        self->hotkeys = NULL;
-    }
+    g_clear_pointer(&self->hotkeys, gsr_hotkeys_free);
 
     g_free(self->record_filename);
     g_clear_object(&self->primary_menu);

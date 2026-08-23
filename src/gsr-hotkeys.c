@@ -303,10 +303,7 @@ gsr_hotkeys_free(GsrHotkeys *self)
         return;
 
 #ifdef HAVE_X11
-    if (self->x11) {
-        gsr_x11_hotkeys_free(self->x11);
-        self->x11 = NULL;
-    }
+    g_clear_pointer(&self->x11, gsr_x11_hotkeys_free);
 #endif
 
 #ifdef HAVE_WAYLAND

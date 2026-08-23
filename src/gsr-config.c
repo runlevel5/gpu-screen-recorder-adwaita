@@ -278,17 +278,13 @@ gsr_config_init_defaults(GsrConfig *config)
 gboolean
 gsr_config_read(GsrConfig *config)
 {
-    char *config_dir = gsr_config_get_dir();
-    char *config_path = g_build_filename(config_dir, "config", NULL);
-    g_free(config_dir);
+    g_autofree char *config_dir = gsr_config_get_dir();
+    g_autofree char *config_path = g_build_filename(config_dir, "config", NULL);
 
     gchar *contents = NULL;
     gsize length = 0;
-    if (!g_file_get_contents(config_path, &contents, &length, NULL)) {
-        g_free(config_path);
+    if (!g_file_get_contents(config_path, &contents, &length, NULL))
         return FALSE;
-    }
-    g_free(config_path);
 
     /* Parse line by line */
     char *p = contents;
@@ -376,25 +372,20 @@ gsr_config_read(GsrConfig *config)
 void
 gsr_config_save(const GsrConfig *config)
 {
-    char *config_dir = gsr_config_get_dir();
-    char *config_path = g_build_filename(config_dir, "config", NULL);
+    g_autofree char *config_dir = gsr_config_get_dir();
+    g_autofree char *config_path = g_build_filename(config_dir, "config", NULL);
 
     /* Ensure directory exists */
     if (create_directory_recursive(config_dir) != 0) {
         g_warning("Failed to create config directory: %s", config_dir);
-        g_free(config_dir);
-        g_free(config_path);
         return;
     }
-    g_free(config_dir);
 
     FILE *file = fopen(config_path, "wb");
     if (!file) {
         g_warning("Failed to create config file: %s: %s", config_path, g_strerror(errno));
-        g_free(config_path);
         return;
     }
-    g_free(config_path);
 
     const char *base = (const char *)config;
 
