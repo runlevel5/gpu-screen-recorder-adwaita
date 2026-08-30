@@ -40,7 +40,9 @@
             <li>Opus (default)</li>
             <li>AAC</li>
         </ul>
-        <p>Videos are in variable framerate format by default. Use MPV to play such videos, otherwise you might experience stuttering in the video if you are using a buggy video player. Alternatively change framerate mode to constant framerate.</p>
+        <p>
+            Videos are in variable framerate format by default. Use MPV to play such videos, otherwise you might experience stuttering in the video if you are using a buggy video player. Alternatively change framerate mode to constant framerate.
+        </p>
         <p>For more information visit the GPU Screen Recorder homepage.</p>
     </description>
 
