@@ -976,7 +976,7 @@ gsr_window_init(GsrWindow *self)
      * The header switcher needs ~700px for all four labels next to the menu and
      * minimize/maximize/close buttons; below that its labels would ellipsize. */
     AdwBreakpoint *bp = adw_breakpoint_new(
-        adw_breakpoint_condition_parse("max-width: 720sp"));
+        adw_breakpoint_condition_parse("max-width: 710sp"));
     adw_breakpoint_add_setters(bp,
         G_OBJECT(self->header_title_stack), "visible-child-name", "title",
         G_OBJECT(self->view_switcher_bar), "reveal", TRUE,
