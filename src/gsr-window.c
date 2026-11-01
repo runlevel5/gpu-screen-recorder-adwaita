@@ -939,10 +939,10 @@ gsr_window_init(GsrWindow *self)
         GTK_WIDGET(self->header_title_label), "title");
 
     self->header_bar = ADW_HEADER_BAR(adw_header_bar_new());
-    /* Loose centering lets the switcher use the space on the left instead of
-     * reserving a block as wide as the end widgets (menu + window buttons). */
+    /* Since we already have breaking point and minimum window width set to
+     * optimal values let's keep header bar elements centered. */
     adw_header_bar_set_centering_policy(self->header_bar,
-        ADW_CENTERING_POLICY_LOOSE);
+        ADW_CENTERING_POLICY_STRICT);
     adw_header_bar_set_title_widget(self->header_bar,
         GTK_WIDGET(self->header_title_stack));
 
