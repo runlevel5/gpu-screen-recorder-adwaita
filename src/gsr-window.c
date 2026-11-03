@@ -890,7 +890,8 @@ gsr_window_init(GsrWindow *self)
 
     /* ── Window properties ─── */
     gtk_window_set_title(GTK_WINDOW(self), _("GPU Screen Recorder"));
-    gtk_window_set_default_size(GTK_WINDOW(self), 810, 685);
+    gtk_window_set_default_size(GTK_WINDOW(self), 715, 685);
+    gtk_widget_set_size_request(GTK_WIDGET(self), 590, 595);
 
     /* ── Load system info ─── */
     GsrInfoExitStatus info_status = gsr_info_load(&self->info);
@@ -938,10 +939,10 @@ gsr_window_init(GsrWindow *self)
         GTK_WIDGET(self->header_title_label), "title");
 
     self->header_bar = ADW_HEADER_BAR(adw_header_bar_new());
-    /* Loose centering lets the switcher use the space on the left instead of
-     * reserving a block as wide as the end widgets (menu + window buttons). */
+    /* Since we already have breaking point and minimum window width set to
+     * optimal values let's keep header bar elements centered. */
     adw_header_bar_set_centering_policy(self->header_bar,
-        ADW_CENTERING_POLICY_LOOSE);
+        ADW_CENTERING_POLICY_STRICT);
     adw_header_bar_set_title_widget(self->header_bar,
         GTK_WIDGET(self->header_title_stack));
 
@@ -976,7 +977,7 @@ gsr_window_init(GsrWindow *self)
      * The header switcher needs ~700px for all four labels next to the menu and
      * minimize/maximize/close buttons; below that its labels would ellipsize. */
     AdwBreakpoint *bp = adw_breakpoint_new(
-        adw_breakpoint_condition_parse("max-width: 720sp"));
+        adw_breakpoint_condition_parse("max-width: 710sp"));
     adw_breakpoint_add_setters(bp,
         G_OBJECT(self->header_title_stack), "visible-child-name", "title",
         G_OBJECT(self->view_switcher_bar), "reveal", TRUE,
